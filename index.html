@@ -167,6 +167,22 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
 .dl-flac-note b { color: var(--text); font-weight: 600; }
 .dl-flac-note a { color: var(--c3); text-decoration: none; font-weight: 600; }
 .dl-flac-note a:hover { text-decoration: underline; }
+
+/* CONVERTER */
+.converter-section { display: block; }
+.converter-upload { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--off); }
+.converter-upload-meta { font-size:12px; color:var(--muted); }
+.converter-upload-btn { border:1px solid var(--border); background:#fff; color:var(--text); border-radius:8px; padding:8px 12px; cursor:pointer; font-weight:600; font-family:var(--sans); }
+.converter-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; }
+.converter-field label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.converter-field select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--off); color: var(--text); font-family: var(--sans); font-size: 14px; }
+.converter-field select:focus { outline: none; border-color: var(--c1); background: #fff; }
+.convert-btn { border: none; border-radius: 10px; padding: 12px 18px; background: linear-gradient(135deg,var(--c3),var(--c5)); color: #fff; font-weight: 700; cursor: pointer; font-family: var(--sans); height: 44px; }
+.convert-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+.converter-note { margin-top: 10px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+.converter-status { margin-top: 12px; border-radius: 10px; padding: 10px 12px; font-size: 13px; border: 1px solid var(--border); background: var(--off); color: var(--text); display: none; white-space: pre-line; }
+.converter-status.show { display: block; }
+@media (max-width: 740px) { .converter-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -267,6 +283,43 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
   <button class="process-btn" id="process-btn" disabled>
     <span>✦</span> Analyze &amp; Remove Silence
   </button>
+
+  <!-- CONVERTER -->
+  <div class="converter-section card" id="converter-section">
+    <div class="ctrl-header" style="margin-bottom:8px">
+      <div class="section-label" style="margin-bottom:0">Audio Converter Tool</div>
+    </div>
+    <div class="converter-upload">
+      <div class="converter-upload-meta" id="converter-upload-meta">No audio selected. Upload a file to convert.</div>
+      <button class="converter-upload-btn" id="converter-upload-btn">Choose Audio</button>
+    </div>
+    <div class="converter-grid">
+      <div class="converter-field">
+        <label for="conv-source">Source</label>
+        <select id="conv-source">
+          <option value="original">Original Upload</option>
+          <option value="processed" disabled>Processed (after silence removal)</option>
+        </select>
+      </div>
+      <div class="converter-field">
+        <label for="conv-format">Convert To</label>
+        <select id="conv-format">
+          <option value="wav">WAV</option>
+          <option value="aiff">AIFF</option>
+          <option value="pcm">PCM (raw .pcm)</option>
+          <option value="flac">FLAC</option>
+          <option value="alac">ALAC</option>
+          <option value="wma-lossless">WMA Lossless</option>
+          <option value="mp3">MP3</option>
+          <option value="aac">AAC</option>
+          <option value="ogg">OGG</option>
+        </select>
+      </div>
+      <button class="convert-btn" id="convert-btn">Convert &amp; Download</button>
+    </div>
+    <p class="converter-note">Upload audio, choose an output format, then click Convert & Download. WAV, AIFF, PCM, MP3, and OGG convert directly in-browser. FLAC, ALAC, WMA Lossless, and AAC are attempted using browser codecs and include FFmpeg fallback guidance if unavailable.</p>
+    <div class="converter-status" id="converter-status"></div>
+  </div>
 
   <!-- PROGRESS -->
   <div class="progress-section card" id="progress-section">
@@ -378,7 +431,9 @@ let specRAF = null;
 let progRAF = null;
 
 // ─── FILE HANDLING ────────────────────────────────────────────────────────────
+
 const dropZone = $('drop-zone');
+$('converter-upload-btn').addEventListener('click', () => $('file-input').click());
 dropZone.addEventListener('click', () => $('file-input').click());
 $('file-input').addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
@@ -393,9 +448,11 @@ $('remove-btn').addEventListener('click', resetAll);
 
 async function loadFile(file) {
   hideError(); resetResult();
+  setConverterStatus('');
   origFileName = file.name;
   $('fname').textContent = file.name;
   $('fmeta').textContent = `${(file.size/1e6).toFixed(2)} MB · ${file.type||'audio'}`;
+  $('converter-upload-meta').textContent = `Selected: ${file.name} (${(file.size/1e6).toFixed(2)} MB)`;
   $('file-bar-card').style.display = 'block';
   document.querySelectorAll('.ctrl-box').forEach(c => c.classList.remove('ai-set'));
 
@@ -408,7 +465,9 @@ async function loadFile(file) {
     drawOrigWaveform();
     $('waveform-section').classList.add('show');
     $('controls-section').classList.add('show');
+    updateConverterSourceOptions();
     $('process-btn').disabled = false;
+    $('convert-btn').disabled = false;
   } catch(e) {
     showError('Could not decode this audio file. Try MP3 or WAV.');
     resetAll();
@@ -424,6 +483,7 @@ function resetAll() {
   $('controls-section').classList.remove('show');
   $('process-btn').disabled = true;
   $('file-input').value = '';
+  $('converter-upload-meta').textContent = 'No audio selected. Upload a file to convert.';
   hideError();
 }
 
@@ -431,7 +491,30 @@ function resetResult() {
   stopPlayback();
   outputBuffer = null;
   playOffset = 0;
+  updateConverterSourceOptions();
   $('result-section').classList.remove('show');
+}
+
+function updateConverterSourceOptions() {
+  const processed = $('conv-source').querySelector('option[value="processed"]');
+  const hasProcessed = !!outputBuffer;
+  processed.disabled = !hasProcessed;
+  if (!hasProcessed && $('conv-source').value === 'processed') $('conv-source').value = 'original';
+}
+
+function getConverterBuffer() {
+  return $('conv-source').value === 'processed' ? outputBuffer : audioBuffer;
+}
+
+$('convert-btn').disabled = true;
+
+function setConverterStatus(msg, isError=false) {
+  const box = $('converter-status');
+  if (!msg) { box.classList.remove('show'); box.textContent = ''; return; }
+  box.textContent = msg;
+  box.classList.add('show');
+  box.style.borderColor = isError ? 'rgba(255,101,132,0.35)' : 'rgba(67,224,164,0.35)';
+  box.style.background = isError ? 'rgba(255,101,132,0.07)' : 'rgba(67,224,164,0.08)';
 }
 
 // ─── WAVEFORM ─────────────────────────────────────────────────────────────────
@@ -593,6 +676,8 @@ $('process-btn').addEventListener('click', async () => {
     // Step 3 — Render
     setP(78, 'Rendering clean audio...');
     outputBuffer = await renderSegments(audioBuffer, segs);
+    updateConverterSourceOptions();
+    $('conv-source').value = 'processed';
     setP(96, 'Finalizing...');
     await sleep(250);
 
@@ -881,25 +966,61 @@ async function encodeMP3(buf, kbps=128) {
   return new Blob(chunks,{type:'audio/mpeg'});
 }
 
-async function encodeOGG(buf) {
-  const types=['audio/ogg;codecs=opus','audio/webm;codecs=opus','audio/webm','audio/ogg'];
-  const mimeType=types.find(t=>MediaRecorder.isTypeSupported(t));
-  if (!mimeType) throw new Error('OGG/WebM not supported in this browser.');
+function encodePCM(buf) {
+  const ch=buf.numberOfChannels, len=buf.length;
+  const chs=[]; for(let c=0;c<ch;c++) chs.push(buf.getChannelData(c));
+  const i16 = new Int16Array(len*ch);
+  let off=0;
+  for(let i=0;i<len;i++) for(let c=0;c<ch;c++) {
+    const s=Math.max(-1,Math.min(1,chs[c][i]));
+    i16[off++]=s<0?s*0x8000:s*0x7FFF;
+  }
+  return new Blob([i16.buffer],{type:'audio/L16'});
+}
+
+async function encodeViaMediaRecorder(buf, preferredTypes, bitRate=128000) {
+  const supported = preferredTypes.find(t=>MediaRecorder.isTypeSupported(t));
+  if (!supported) throw new Error('codec_unavailable');
   return new Promise((resolve,reject)=>{
     const tmpCtx=new AudioContext({sampleRate:buf.sampleRate});
     const dest=tmpCtx.createMediaStreamDestination();
     const src=tmpCtx.createBufferSource();
     src.buffer=buf; src.connect(dest);
     let recorder;
-    try { recorder=new MediaRecorder(dest.stream,{mimeType,audioBitsPerSecond:96000}); }
+    try { recorder=new MediaRecorder(dest.stream,{mimeType:supported,audioBitsPerSecond:bitRate}); }
     catch(e){tmpCtx.close();reject(e);return;}
     const chunks=[];
     recorder.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
-    recorder.onstop=()=>{tmpCtx.close();resolve(new Blob(chunks,{type:mimeType.split(';')[0]}));};
+    recorder.onstop=()=>{tmpCtx.close();resolve({blob:new Blob(chunks,{type:supported.split(';')[0]}), mimeType:supported});};
     recorder.onerror=e=>{tmpCtx.close();reject(e);};
     recorder.start(100); src.start(0);
     src.onended=()=>setTimeout(()=>recorder.stop(),200);
   });
+}
+
+async function encodeOGG(buf) {
+  const {blob} = await encodeViaMediaRecorder(buf, ['audio/ogg;codecs=opus','audio/webm;codecs=opus','audio/webm','audio/ogg'], 96000);
+  return blob;
+}
+
+async function encodeAAC(buf) {
+  const {blob} = await encodeViaMediaRecorder(buf, ['audio/mp4;codecs=mp4a.40.2','audio/aac','audio/mp4'], 128000);
+  return blob;
+}
+
+async function encodeFLAC(buf) {
+  const {blob} = await encodeViaMediaRecorder(buf, ['audio/flac','audio/x-flac']);
+  return blob;
+}
+
+async function encodeALAC(buf) {
+  const {blob} = await encodeViaMediaRecorder(buf, ['audio/mp4;codecs=alac','audio/x-m4a']);
+  return blob;
+}
+
+async function encodeWMALossless(buf) {
+  const {blob} = await encodeViaMediaRecorder(buf, ['audio/x-ms-wma','audio/wma']);
+  return blob;
 }
 
 // ─── DOWNLOAD BUTTONS ────────────────────────────────────────────────────────
@@ -923,6 +1044,51 @@ dlBtn('dl-wav',  ()=>Promise.resolve(encodeWAV(outputBuffer)),  '.wav');
 dlBtn('dl-aiff', ()=>Promise.resolve(encodeAIFF(outputBuffer)), '.aiff');
 dlBtn('dl-mp3',  ()=>encodeMP3(outputBuffer,128),               '.mp3');
 dlBtn('dl-ogg',  ()=>encodeOGG(outputBuffer),                   '.ogg');
+
+const converterFormats = {
+  'wav': { ext: '.wav', label: 'WAV', getBlob: buf => Promise.resolve(encodeWAV(buf)) },
+  'aiff': { ext: '.aiff', label: 'AIFF', getBlob: buf => Promise.resolve(encodeAIFF(buf)) },
+  'pcm': { ext: '.pcm', label: 'PCM', getBlob: buf => Promise.resolve(encodePCM(buf)) },
+  'mp3': { ext: '.mp3', label: 'MP3', getBlob: buf => encodeMP3(buf, 128) },
+  'aac': { ext: '.aac', label: 'AAC', getBlob: buf => encodeAAC(buf), ffmpeg: 'ffmpeg -i input.wav -c:a aac -b:a 192k output.aac' },
+  'ogg': { ext: '.ogg', label: 'OGG', getBlob: buf => encodeOGG(buf) },
+  'flac': { ext: '.flac', label: 'FLAC', getBlob: buf => encodeFLAC(buf), ffmpeg: 'ffmpeg -i input.wav -c:a flac output.flac' },
+  'alac': { ext: '.m4a', label: 'ALAC', getBlob: buf => encodeALAC(buf), ffmpeg: 'ffmpeg -i input.wav -c:a alac output.m4a' },
+  'wma-lossless': { ext: '.wma', label: 'WMA Lossless', getBlob: buf => encodeWMALossless(buf), ffmpeg: 'ffmpeg -i input.wav -c:a wmav2 -lossless 1 output.wma' }
+};
+
+$('convert-btn').addEventListener('click', async () => {
+  const srcBuf = getConverterBuffer();
+  if (!srcBuf) { setConverterStatus('Load an audio file first.', true); return; }
+
+  const fmt = converterFormats[$('conv-format').value];
+  const btn = $('convert-btn');
+  btn.disabled = true;
+  setConverterStatus(`Converting to ${fmt.label}...`);
+
+  const sourceTag = $('conv-source').value === 'processed' ? '_processed' : '_original';
+  const base = (origFileName.replace(/\.[^.]+$/,'') || 'audio') + sourceTag;
+
+  try {
+    const blob = await fmt.getBlob(srcBuf);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = base + fmt.ext;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
+    setConverterStatus(`Done! Downloaded ${fmt.label}.`);
+  } catch (e) {
+    if ((e.message || '').includes('codec_unavailable') && fmt.ffmpeg) {
+      setConverterStatus(`${fmt.label} codec is unavailable in this browser.
+Fallback: download WAV and convert with:
+${fmt.ffmpeg}`, true);
+    } else {
+      setConverterStatus(`Conversion failed: ${e.message || 'unknown error'}`, true);
+    }
+  }
+  btn.disabled = false;
+});
 
 // ─── UTILS ───────────────────────────────────────────────────────────────────
 function fmtTime(s) { const m=Math.floor(s/60),sec=Math.floor(s%60); return `${m}:${sec.toString().padStart(2,'0')}`; }
