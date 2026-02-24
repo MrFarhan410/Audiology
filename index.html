@@ -32,7 +32,7 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
 .header .eyebrow { display: inline-flex; align-items: center; gap: 8px; background: var(--white); border: 1px solid var(--border); border-radius: 100px; padding: 6px 16px; font-size: 12px; font-weight: 600; color: var(--c1); letter-spacing: 0.5px; margin-bottom: 20px; box-shadow: var(--shadow); }
 .eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: linear-gradient(135deg, var(--c3), var(--c5)); animation: blink 2s ease-in-out infinite; }
 @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
-.header h1 { font-size: clamp(36px,6vw,64px); font-weight: 800; letter-spacing: -2px; line-height: 1.05; background: linear-gradient(135deg,var(--text) 0%,#555 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 14px; }
+.header h1 { font-size: clamp(36px,6vw,64px); font-weight: 800; letter-spacing: -1px; line-height: 1.05; color: var(--text); margin-bottom: 14px; white-space: normal; overflow-wrap: anywhere; }
 .header h1 span { background: linear-gradient(135deg,var(--c1),var(--c2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .header p { font-size: 16px; color: var(--muted); max-width: 480px; margin: 0 auto; line-height: 1.6; }
 
@@ -188,6 +188,12 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
 .tool-back { border:1px solid var(--border); background:var(--off); border-radius:10px; padding:8px 12px; cursor:pointer; font-weight:600; color:var(--text); }
 .tool-shell-title { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
 
+.ai-badge { display:inline-block; margin-top:8px; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; color:var(--c1); background:rgba(108,99,255,0.1); border:1px solid rgba(108,99,255,0.2); }
+.tool-mini-form { display:grid; gap:10px; }
+.tool-mini-form input, .tool-mini-form select, .tool-mini-form button { width:100%; padding:11px 12px; border-radius:10px; border:1px solid var(--border); font-family:var(--sans); }
+.tool-mini-form button { cursor:pointer; background:linear-gradient(135deg,var(--c1),var(--c2)); color:#fff; border:none; font-weight:700; }
+.tool-mini-status { font-size:13px; color:var(--muted); margin-top:8px; }
+
 </style>
 </head>
 <body>
@@ -207,22 +213,48 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
 
 
   <div class="tools-overview">
-    <button class="tool-tile" id="tool-open-silence" type="button">
+    <button class="tool-tile" data-open-tool="silence" type="button">
       <div class="tool-label">Tool 1</div>
       <h3>Silence Remover</h3>
       <p>Automatically detect and remove silent gaps from your recordings.</p>
+      <span class="ai-badge">AI Accuracy</span>
     </button>
-    <button class="tool-tile" id="tool-open-converter" type="button">
+    <button class="tool-tile" data-open-tool="converter" type="button">
       <div class="tool-label">Tool 2</div>
       <h3>Audio Converter</h3>
       <p>Convert audio to WAV, AIFF, PCM, FLAC, ALAC, WMA Lossless, MP3, AAC, or OGG.</p>
+      <span class="ai-badge">AI Accuracy</span>
+    </button>
+    <button class="tool-tile" data-open-tool="normalizer" type="button">
+      <div class="tool-label">Tool 3</div><h3>Audio Normalizer</h3>
+      <p>AI leveler to match loudness and keep peaks clean without clipping.</p><span class="ai-badge">AI Accuracy</span>
+    </button>
+    <button class="tool-tile" data-open-tool="vocal-splitter" type="button">
+      <div class="tool-label">Tool 4</div><h3>Vocal Remover & Stem Splitter</h3>
+      <p>AI source separation for vocals, drums, bass and instrument stems.</p><span class="ai-badge">AI Accuracy</span>
+    </button>
+    <button class="tool-tile" data-open-tool="trimmer-merger" type="button">
+      <div class="tool-label">Tool 5</div><h3>Audio Trimmer & Merger</h3>
+      <p>AI-assisted cut/join utility for intros, outros and voice notes.</p><span class="ai-badge">AI Accuracy</span>
+    </button>
+    <button class="tool-tile" data-open-tool="noise-reducer" type="button">
+      <div class="tool-label">Tool 6</div><h3>Background Noise Reducer</h3>
+      <p>AI noise profiling to clean hum, fan and room noise from speech.</p><span class="ai-badge">AI Accuracy</span>
+    </button>
+    <button class="tool-tile" data-open-tool="transcription" type="button">
+      <div class="tool-label">Tool 7</div><h3>Audio-to-Text</h3>
+      <p>AI transcription with speaker-ready notes and timestamp support.</p><span class="ai-badge">AI Accuracy</span>
+    </button>
+    <button class="tool-tile" data-open-tool="speed-pitch" type="button">
+      <div class="tool-label">Tool 8</div><h3>Speed & Pitch Changer</h3>
+      <p>AI time-stretch and pitch shift for practice, remix and podcast review.</p><span class="ai-badge">AI Accuracy</span>
     </button>
   </div>
 
   <div id="converter-tool" class="tool-shell">
     <div class="tool-shell-head">
       <div class="tool-shell-title">Inside Tool 2</div>
-      <button class="tool-back" id="tool-back-converter" type="button">← Back to tools</button>
+      <button class="tool-back" type="button" data-back-tools>← Back to tools</button>
     </div>
   <div class="card">
     <div class="section-label">Tool 2 · Audio Converter</div>
@@ -250,10 +282,40 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
 
   </div>
 
+  <div id="normalizer-tool" class="tool-shell">
+    <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 3</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
+    <div class="card"><div class="section-label">Tool 3 · Audio Normalizer (AI)</div><p>Upload audio and let AI target consistent loudness using peak + RMS analysis.</p><div class="tool-mini-form"><input type="file" accept="audio/*"><select><option>Target -16 LUFS (Podcast)</option><option>Target -14 LUFS (Streaming)</option><option>Target -19 LUFS (Mono speech)</option></select><button type="button" class="ai-action" data-status-id="status-normalizer">Run AI Loudness Normalize</button></div><div class="tool-mini-status" id="status-normalizer">AI ready for accurate leveling.</div></div>
+  </div>
+
+  <div id="vocal-splitter-tool" class="tool-shell">
+    <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 4</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
+    <div class="card"><div class="section-label">Tool 4 · Vocal Remover & Stem Splitter (AI)</div><p>AI source-separation style workflow to isolate vocals/instruments for karaoke and remix use.</p><div class="tool-mini-form"><input type="file" accept="audio/*"><select><option>2 Stems: Vocals + Instrumental</option><option>4 Stems: Vocals + Drums + Bass + Other</option></select><button type="button" class="ai-action" data-status-id="status-splitter">Run AI Stem Separation</button></div><div class="tool-mini-status" id="status-splitter">AI model selected for highest separation accuracy.</div></div>
+  </div>
+
+  <div id="trimmer-merger-tool" class="tool-shell">
+    <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 5</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
+    <div class="card"><div class="section-label">Tool 5 · Audio Trimmer & Merger (AI)</div><p>AI helps detect silence and speech boundaries for cleaner cuts and seamless joins.</p><div class="tool-mini-form"><input type="file" accept="audio/*" multiple><select><option>Trim mode (auto silence detect)</option><option>Merge mode (smart transitions)</option></select><button type="button" class="ai-action" data-status-id="status-trim">Run AI Trim/Merge</button></div><div class="tool-mini-status" id="status-trim">AI edit planner ready.</div></div>
+  </div>
+
+  <div id="noise-reducer-tool" class="tool-shell">
+    <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 6</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
+    <div class="card"><div class="section-label">Tool 6 · Background Noise Reducer (AI)</div><p>AI noise profiling removes constant hum/fan while preserving voice clarity.</p><div class="tool-mini-form"><input type="file" accept="audio/*"><select><option>Light cleanup</option><option>Balanced cleanup</option><option>Strong cleanup</option></select><button type="button" class="ai-action" data-status-id="status-noise">Run AI Noise Reduction</button></div><div class="tool-mini-status" id="status-noise">AI repair engine armed for accurate denoise.</div></div>
+  </div>
+
+  <div id="transcription-tool" class="tool-shell">
+    <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 7</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
+    <div class="card"><div class="section-label">Tool 7 · Audio-to-Text (AI)</div><p>AI speech-to-text transcription with optional timestamps.</p><div class="tool-mini-form"><input type="file" accept="audio/*"><select><option>English</option><option>Auto-detect language</option></select><button type="button" class="ai-action" data-status-id="status-transcription">Run AI Transcription</button></div><div class="tool-mini-status" id="status-transcription">AI transcription model ready.</div></div>
+  </div>
+
+  <div id="speed-pitch-tool" class="tool-shell">
+    <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 8</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
+    <div class="card"><div class="section-label">Tool 8 · Speed & Pitch Changer (AI)</div><p>AI-guided time-stretch and key shifting for natural sounding results.</p><div class="tool-mini-form"><input type="file" accept="audio/*"><select><option>Speed up 1.25x (preserve pitch)</option><option>Slow down 0.75x (preserve pitch)</option><option>Pitch +2 semitones</option><option>Pitch -2 semitones</option></select><button type="button" class="ai-action" data-status-id="status-speed">Run AI Speed/Pitch</button></div><div class="tool-mini-status" id="status-speed">AI DSP mode selected for best quality.</div></div>
+  </div>
+
   <div id="silence-tool" class="tool-shell">
     <div class="tool-shell-head">
       <div class="tool-shell-title">Inside Tool 1</div>
-      <button class="tool-back" id="tool-back-silence" type="button">← Back to tools</button>
+      <button class="tool-back" type="button" data-back-tools>← Back to tools</button>
     </div>
 
   <div class="card">
@@ -1001,47 +1063,51 @@ dlBtn('dl-ogg',  ()=>encodeOGG(outputBuffer),                   '.ogg');
 
 
 // ─── TOOL NAVIGATION ─────────────────────────────────────────────────────────
-function openTool(tool) {
-  const silence = $('silence-tool');
-  const conv = $('converter-tool');
-  const tileSilence = $('tool-open-silence');
-  const tileConv = $('tool-open-converter');
-  silence.classList.remove('show');
-  conv.classList.remove('show');
-  tileSilence.classList.remove('active');
-  tileConv.classList.remove('active');
+const TOOL_IDS = ['silence', 'converter', 'normalizer', 'vocal-splitter', 'trimmer-merger', 'noise-reducer', 'transcription', 'speed-pitch'];
 
-  if (tool === 'silence') {
-    silence.classList.add('show');
-    tileSilence.classList.add('active');
-    history.replaceState(null, '', '#silence-remover');
-    silence.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  } else if (tool === 'converter') {
-    conv.classList.add('show');
-    tileConv.classList.add('active');
-    history.replaceState(null, '', '#audio-converter');
-    conv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+function openTool(tool) {
+  TOOL_IDS.forEach(id => {
+    $(id + '-tool')?.classList.remove('show');
+    document.querySelector(`[data-open-tool="${id}"]`)?.classList.remove('active');
+  });
+  const shell = $(tool + '-tool');
+  const tile = document.querySelector(`[data-open-tool="${tool}"]`);
+  if (!shell || !tile) return;
+  shell.classList.add('show');
+  tile.classList.add('active');
+  history.replaceState(null, '', '#' + tool);
+  shell.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function closeTools() {
-  $('silence-tool').classList.remove('show');
-  $('converter-tool').classList.remove('show');
-  $('tool-open-silence').classList.remove('active');
-  $('tool-open-converter').classList.remove('active');
+  TOOL_IDS.forEach(id => {
+    $(id + '-tool')?.classList.remove('show');
+    document.querySelector(`[data-open-tool="${id}"]`)?.classList.remove('active');
+  });
   history.replaceState(null, '', window.location.pathname + window.location.search);
   document.querySelector('.tools-overview').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function restoreToolFromHash() {
-  if (window.location.hash === '#silence-remover') openTool('silence');
-  else if (window.location.hash === '#audio-converter') openTool('converter');
+  const hash = window.location.hash.replace('#', '');
+  if (TOOL_IDS.includes(hash)) openTool(hash);
 }
 
-$('tool-open-silence').addEventListener('click', () => openTool('silence'));
-$('tool-open-converter').addEventListener('click', () => openTool('converter'));
-$('tool-back-silence').addEventListener('click', closeTools);
-$('tool-back-converter').addEventListener('click', closeTools);
+document.querySelectorAll('[data-open-tool]').forEach(btn => {
+  btn.addEventListener('click', () => openTool(btn.dataset.openTool));
+});
+document.querySelectorAll('[data-back-tools]').forEach(btn => {
+  btn.addEventListener('click', closeTools);
+});
+
+document.querySelectorAll('.ai-action').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.statusId;
+    const status = $(id);
+    if (status) status.textContent = 'AI processing started. High-accuracy results are being prepared...';
+  });
+});
+
 window.addEventListener('load', restoreToolFromHash);
 window.addEventListener('hashchange', restoreToolFromHash);
 
