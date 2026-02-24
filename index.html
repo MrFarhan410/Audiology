@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Remove Silence</title>
+<title>Audiology</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.0/lame.min.js"></script>
 <style>
@@ -167,6 +167,27 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
 .dl-flac-note b { color: var(--text); font-weight: 600; }
 .dl-flac-note a { color: var(--c3); text-decoration: none; font-weight: 600; }
 .dl-flac-note a:hover { text-decoration: underline; }
+
+.tools-overview { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 14px; margin-bottom: 22px; }
+.tool-tile { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: var(--shadow); }
+.tool-tile .tool-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+.tool-tile h3 { font-size: 18px; margin-bottom: 6px; }
+.tool-tile p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.converter-grid { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end; margin-top: 14px; }
+.converter-grid select, .converter-grid button, .converter-grid input { width: 100%; }
+.converter-label { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; display: block; }
+.converter-btn { border: none; background: linear-gradient(135deg,var(--c1),var(--c2)); color: white; border-radius: 10px; padding: 12px 18px; font-weight: 700; cursor: pointer; min-width: 160px; }
+.converter-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.converter-status { margin-top: 12px; font-size: 13px; color: var(--muted); }
+
+.tool-tile { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
+.tool-tile.active { border-color: var(--c1); box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+.tool-shell { display: none; }
+.tool-shell.show { display: block; }
+.tool-shell-head { display:flex; align-items:center; justify-content:space-between; margin-bottom: 10px; }
+.tool-back { border:1px solid var(--border); background:var(--off); border-radius:10px; padding:8px 12px; cursor:pointer; font-weight:600; color:var(--text); }
+.tool-shell-title { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+
 </style>
 </head>
 <body>
@@ -178,13 +199,67 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
 <div class="page">
 
   <div class="header">
-    <div class="eyebrow"><span class="eyebrow-dot"></span> AI-Powered Audio Tool</div>
-    <h1>Remove <span>Silence</span><br>from Audio</h1>
-    <p>Upload any audio file. AI auto-tunes the settings and strips every silent gap — all in one click.</p>
+    <div class="eyebrow"><span class="eyebrow-dot"></span> Audiology</div>
+    <h1>Audiology</h1>
+    <p>Do everything with audio</p>
   </div>
 
-  <!-- UPLOAD -->
+
+
+  <div class="tools-overview">
+    <button class="tool-tile" id="tool-open-silence" type="button">
+      <div class="tool-label">Tool 1</div>
+      <h3>Silence Remover</h3>
+      <p>Automatically detect and remove silent gaps from your recordings.</p>
+    </button>
+    <button class="tool-tile" id="tool-open-converter" type="button">
+      <div class="tool-label">Tool 2</div>
+      <h3>Audio Converter</h3>
+      <p>Convert audio to WAV, AIFF, PCM, FLAC, ALAC, WMA Lossless, MP3, AAC, or OGG.</p>
+    </button>
+  </div>
+
+  <div id="converter-tool" class="tool-shell">
+    <div class="tool-shell-head">
+      <div class="tool-shell-title">Inside Tool 2</div>
+      <button class="tool-back" id="tool-back-converter" type="button">← Back to tools</button>
+    </div>
   <div class="card">
+    <div class="section-label">Tool 2 · Audio Converter</div>
+    <label class="converter-label" for="converter-file">Upload audio file</label>
+    <input type="file" id="converter-file" accept="audio/*">
+    <div class="converter-grid">
+      <div>
+        <label class="converter-label" for="converter-format">Convert to format</label>
+        <select id="converter-format">
+          <option value="wav">WAV</option>
+          <option value="aiff">AIFF</option>
+          <option value="pcm">PCM</option>
+          <option value="flac">FLAC</option>
+          <option value="alac">ALAC</option>
+          <option value="wma">WMA Lossless</option>
+          <option value="mp3">MP3</option>
+          <option value="aac">AAC</option>
+          <option value="ogg">OGG</option>
+        </select>
+      </div>
+      <button id="converter-btn" class="converter-btn" disabled>Convert & Download</button>
+    </div>
+    <div class="converter-status" id="converter-status">Upload a file to start converting.</div>
+  </div>
+
+  </div>
+
+  <div id="silence-tool" class="tool-shell">
+    <div class="tool-shell-head">
+      <div class="tool-shell-title">Inside Tool 1</div>
+      <button class="tool-back" id="tool-back-silence" type="button">← Back to tools</button>
+    </div>
+
+  <div class="card">
+    <div class="section-label">Tool 1 · Silence Remover</div>
+
+  <!-- UPLOAD -->
     <div class="drop-zone" id="drop-zone">
       <div class="drop-upload-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -923,6 +998,145 @@ dlBtn('dl-wav',  ()=>Promise.resolve(encodeWAV(outputBuffer)),  '.wav');
 dlBtn('dl-aiff', ()=>Promise.resolve(encodeAIFF(outputBuffer)), '.aiff');
 dlBtn('dl-mp3',  ()=>encodeMP3(outputBuffer,128),               '.mp3');
 dlBtn('dl-ogg',  ()=>encodeOGG(outputBuffer),                   '.ogg');
+
+
+// ─── TOOL NAVIGATION ─────────────────────────────────────────────────────────
+function openTool(tool) {
+  const silence = $('silence-tool');
+  const conv = $('converter-tool');
+  const tileSilence = $('tool-open-silence');
+  const tileConv = $('tool-open-converter');
+  silence.classList.remove('show');
+  conv.classList.remove('show');
+  tileSilence.classList.remove('active');
+  tileConv.classList.remove('active');
+
+  if (tool === 'silence') {
+    silence.classList.add('show');
+    tileSilence.classList.add('active');
+    history.replaceState(null, '', '#silence-remover');
+    silence.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else if (tool === 'converter') {
+    conv.classList.add('show');
+    tileConv.classList.add('active');
+    history.replaceState(null, '', '#audio-converter');
+    conv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function closeTools() {
+  $('silence-tool').classList.remove('show');
+  $('converter-tool').classList.remove('show');
+  $('tool-open-silence').classList.remove('active');
+  $('tool-open-converter').classList.remove('active');
+  history.replaceState(null, '', window.location.pathname + window.location.search);
+  document.querySelector('.tools-overview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function restoreToolFromHash() {
+  if (window.location.hash === '#silence-remover') openTool('silence');
+  else if (window.location.hash === '#audio-converter') openTool('converter');
+}
+
+$('tool-open-silence').addEventListener('click', () => openTool('silence'));
+$('tool-open-converter').addEventListener('click', () => openTool('converter'));
+$('tool-back-silence').addEventListener('click', closeTools);
+$('tool-back-converter').addEventListener('click', closeTools);
+window.addEventListener('load', restoreToolFromHash);
+window.addEventListener('hashchange', restoreToolFromHash);
+
+// ─── TOOL 2: AUDIO CONVERTER ──────────────────────────────────────────────────
+let converterBuffer = null;
+let converterFileName = '';
+
+$('converter-file').addEventListener('change', async (e) => {
+  const file = e.target.files?.[0];
+  converterBuffer = null;
+  if (!file) {
+    $('converter-btn').disabled = true;
+    $('converter-status').textContent = 'Upload a file to start converting.';
+    return;
+  }
+  converterFileName = file.name.replace(/\.[^.]+$/, '') || 'audio';
+  $('converter-status').textContent = 'Reading audio file...';
+  try {
+    const arr = await file.arrayBuffer();
+    const ctx = new AudioContext();
+    converterBuffer = await ctx.decodeAudioData(arr);
+    await ctx.close();
+    $('converter-btn').disabled = false;
+    $('converter-status').textContent = `Loaded ${file.name} (${converterBuffer.duration.toFixed(1)}s).`;
+  } catch (err) {
+    $('converter-btn').disabled = true;
+    $('converter-status').textContent = 'Could not decode file. Try MP3, WAV, or OGG.';
+  }
+});
+
+function encodePCM(buf) {
+  const ch = buf.numberOfChannels, len = buf.length;
+  const out = new Int16Array(len * ch);
+  const channels = [];
+  for (let c = 0; c < ch; c++) channels.push(buf.getChannelData(c));
+  let o = 0;
+  for (let i = 0; i < len; i++) for (let c = 0; c < ch; c++) out[o++] = Math.max(-1, Math.min(1, channels[c][i])) * 0x7fff;
+  return new Blob([out.buffer], { type: 'application/octet-stream' });
+}
+
+async function encodeByMediaRecorder(buf, typeList, bits = 128000) {
+  const mimeType = typeList.find(t => MediaRecorder.isTypeSupported(t));
+  if (!mimeType) throw new Error('Not supported in this browser.');
+  return new Promise((resolve, reject) => {
+    const ctx = new AudioContext({ sampleRate: buf.sampleRate });
+    const dest = ctx.createMediaStreamDestination();
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(dest);
+    const chunks = [];
+    let recorder;
+    try { recorder = new MediaRecorder(dest.stream, { mimeType, audioBitsPerSecond: bits }); }
+    catch (e) { ctx.close(); reject(e); return; }
+    recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+    recorder.onerror = e => { ctx.close(); reject(e.error || new Error('Recorder error')); };
+    recorder.onstop = () => { ctx.close(); resolve(new Blob(chunks, { type: mimeType.split(';')[0] })); };
+    recorder.start(100);
+    src.start(0);
+    src.onended = () => setTimeout(() => recorder.stop(), 200);
+  });
+}
+
+$('converter-btn').addEventListener('click', async () => {
+  if (!converterBuffer) return;
+  const fmt = $('converter-format').value;
+  $('converter-btn').disabled = true;
+  $('converter-status').textContent = `Converting to ${fmt.toUpperCase()}...`;
+  try {
+    let blob, ext;
+    if (fmt === 'wav') { blob = encodeWAV(converterBuffer); ext = '.wav'; }
+    else if (fmt === 'aiff') { blob = encodeAIFF(converterBuffer); ext = '.aiff'; }
+    else if (fmt === 'pcm') { blob = encodePCM(converterBuffer); ext = '.pcm'; }
+    else if (fmt === 'mp3') { blob = await encodeMP3(converterBuffer, 128); ext = '.mp3'; }
+    else if (fmt === 'ogg') { blob = await encodeOGG(converterBuffer); ext = '.ogg'; }
+    else if (fmt === 'aac') { blob = await encodeByMediaRecorder(converterBuffer, ['audio/mp4;codecs=mp4a.40.2','audio/aac'], 128000); ext = '.aac'; }
+    else if (fmt === 'flac') { blob = await encodeByMediaRecorder(converterBuffer, ['audio/flac'], 256000); ext = '.flac'; }
+    else if (fmt === 'alac') { blob = await encodeByMediaRecorder(converterBuffer, ['audio/mp4;codecs=alac'], 256000); ext = '.m4a'; }
+    else if (fmt === 'wma') { blob = await encodeByMediaRecorder(converterBuffer, ['audio/x-ms-wma'], 256000); ext = '.wma'; }
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${converterFileName || 'audio'}_converted${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    $('converter-status').textContent = `Done. Downloaded ${fmt.toUpperCase()} file.`;
+  } catch (err) {
+    $('converter-status').textContent = `${fmt.toUpperCase()} conversion is not available in this browser.`;
+    showError(`${fmt.toUpperCase()} conversion is not supported in this browser yet.`);
+  } finally {
+    $('converter-btn').disabled = false;
+  }
+});
 
 // ─── UTILS ───────────────────────────────────────────────────────────────────
 function fmtTime(s) { const m=Math.floor(s/60),sec=Math.floor(s%60); return `${m}:${sec.toString().padStart(2,'0')}`; }
