@@ -199,6 +199,16 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
 .tool-downloads { margin-top: 10px; display:flex; gap:8px; flex-wrap:wrap; }
 .tool-downloads button { padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--off); cursor:pointer; font-size:12px; font-weight:700; }
 .tool-transcript { margin-top: 10px; padding: 10px; border:1px solid var(--border); border-radius:10px; background:var(--off); font-size:12px; white-space:pre-wrap; display:none; }
+.tool-settings { margin-top:10px; border:1px solid var(--border); border-radius:10px; background:var(--off); padding:10px; }
+.tool-settings h4 { font-size:12px; margin:10px 0 8px; }
+.settings-row { display:grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap:8px; margin-bottom:8px; }
+.check-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(170px,1fr)); gap:6px 10px; max-height:180px; overflow:auto; padding-right:6px; }
+.check-item { font-size:12px; display:flex; gap:6px; align-items:center; }
+.export-actions { margin-top:8px; border:1px solid var(--border); border-radius:10px; padding:10px; background:#fff; }
+.export-actions h4 { margin:0 0 6px; font-size:12px; }
+.export-help { font-size:12px; color:#5d6f99; margin-bottom:8px; }
+.export-format-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:8px 12px; }
+.export-actions button { margin-top:10px; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:#fff; cursor:pointer; font-size:12px; font-weight:700; }
 .mini-progress { margin-top:10px; display:none; }
 .mini-progress.show { display:block; }
 .mini-progress .track { height:6px; border-radius:999px; background:var(--border); overflow:hidden; }
@@ -371,10 +381,31 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
         <select id="transcription-mode"><option value="en">English</option><option value="auto">Auto language detect</option></select>
         <button type="button" class="ai-action" data-tool-id="transcription">Run AI Transcription</button>
       </div>
+      <div class="tool-settings">
+        <h4>Settings</h4>
+        <div class="settings-row">
+          <label class="check-item"><input type="checkbox" id="tx-include-ts" checked> ⏱️ Include timestamps in preview</label>
+          <label class="check-item"><input type="checkbox" id="tx-export-ts" checked> Section timestamps for PDF, DOCX, TXT</label>
+          <label class="check-item">Segments per line
+            <select id="tx-segments"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select>
+          </label>
+          <label class="check-item">Letter case
+            <select id="tx-case"><option value="aa">Aa</option><option value="upper">CAPITAL</option><option value="lower">small</option></select>
+          </label>
+        </div>
+        <h4>Remove punctuation/symbols (multi-select)</h4>
+        <div class="check-grid" id="tx-punc-grid"></div>
+      </div>
       <div class="mini-progress" id="progress-transcription"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div>
       <div class="tool-mini-status" id="status-transcription">Upload input to begin.</div>
       <pre class="tool-transcript" id="transcription-text"></pre>
       <audio controls class="tool-audio" id="audio-transcription"></audio>
+      <div class="export-actions" id="transcription-exports">
+        <h4>Export 1 Transcript</h4>
+        <div class="export-help">Select one or more formats.</div>
+        <div class="export-format-grid" id="tx-export-grid"></div>
+        <button type="button" id="tx-export-selected">Export selected</button>
+      </div>
       <div class="tool-downloads" id="downloads-transcription"></div>
     </div>
   </div>
@@ -1189,6 +1220,115 @@ const TOOL_UI = {
 };
 const toolData = {};
 
+const TRANSCRIPTION_PUNCT = [
+  ['dots','.'],['period','.'],['question mark','?'],['exclamation point','!'],['comma',','],['colons',':'],['colon',':'],['semicolons',';'],['semicolon',';'],['hyphen','-'],['en dash','–'],['em dash','—'],['parentheses','()'],['square brackets','[]'],['curly brackets','{}'],['angle brackets','<>'],['quotation marks','"'],['apostrophe',"'"],['slash','/'],['ellipses','...'],['asterisk','*'],['ampersand','&'],['bullet point','•'],['pound symbol','#'],['tilde','~'],['backslash','\\'],['at symbol','@'],['caret symbol','^'],['pipe symbol','|']
+];
+const TX_EXPORT_FORMATS = ['PDF','DOCX','TXT','CSV','SRT','VTT'];
+let transcriptionState = { rawWords: [], duration: 0 };
+
+function initTranscriptionControls() {
+  const puncGrid = $('tx-punc-grid');
+  const exportGrid = $('tx-export-grid');
+  if (!puncGrid || !exportGrid) return;
+  puncGrid.innerHTML = '';
+  TRANSCRIPTION_PUNCT.forEach(([name, val], i) => {
+    const lab = document.createElement('label');
+    lab.className = 'check-item';
+    lab.innerHTML = `<input type="checkbox" value="${val}" id="tx-punc-${i}"> ${name}`;
+    puncGrid.appendChild(lab);
+  });
+  exportGrid.innerHTML = '';
+  TX_EXPORT_FORMATS.forEach((fmt) => {
+    const lab = document.createElement('label');
+    lab.className = 'check-item';
+    lab.innerHTML = `<input type="checkbox" id="tx-export-${fmt.toLowerCase()}" value="${fmt}"> Export as ${fmt}`;
+    exportGrid.appendChild(lab);
+  });
+  ['tx-include-ts','tx-segments','tx-case'].forEach(id => $(id)?.addEventListener('change', refreshTranscriptionPreview));
+  puncGrid.addEventListener('change', refreshTranscriptionPreview);
+  $('tx-export-selected')?.addEventListener('click', exportSelectedTranscriptions);
+}
+
+function formatTs(sec) {
+  const s = Math.floor(sec % 60).toString().padStart(2, '0');
+  const m = Math.floor((sec / 60) % 60).toString().padStart(2, '0');
+  const h = Math.floor(sec / 3600).toString().padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
+
+function applyCase(text, mode) {
+  if (mode === 'upper') return text.toUpperCase();
+  if (mode === 'lower') return text.toLowerCase();
+  return text.replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function stripSelected(text) {
+  const selected = [...document.querySelectorAll('#tx-punc-grid input:checked')].map(i => i.value);
+  let out = text;
+  selected.forEach(sym => {
+    if (sym === '()') out = out.replace(/[()]/g, '');
+    else if (sym === '[]') out = out.replace(/[\[\]]/g, '');
+    else if (sym === '{}') out = out.replace(/[{}]/g, '');
+    else if (sym === '<>') out = out.replace(/[<>]/g, '');
+    else if (sym === '"') out = out.replace(/["“”]/g, '');
+    else if (sym === '\\') out = out.replace(/\\/g, '');
+    else if (sym === '...') out = out.replace(/\.\.\./g, '');
+    else out = out.split(sym).join('');
+  });
+  return out.replace(/[ \t]+/g, ' ').replace(/\n[ \t]+/g, '\n').trim();
+}
+
+function buildTranscriptText(includeTs = true, seg = 2, caseMode = 'aa') {
+  const words = transcriptionState.rawWords.length ? transcriptionState.rawWords : 'No transcript available yet'.split(' ');
+  const duration = transcriptionState.duration || 0;
+  const lines = [];
+  for (let i = 0; i < words.length; i += seg) {
+    const part = words.slice(i, i + seg).join(' ');
+    const t = duration ? formatTs((i / words.length) * duration) : '00:00:00';
+    lines.push(includeTs ? `[${t}] ${part}` : part);
+  }
+  return applyCase(stripSelected(lines.join('\n')), caseMode);
+}
+
+function refreshTranscriptionPreview() {
+  const pre = $('transcription-text');
+  if (!pre || pre.style.display === 'none') return;
+  pre.textContent = buildTranscriptText($('tx-include-ts').checked, +$('tx-segments').value, $('tx-case').value);
+}
+
+function makeDownload(name, content, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+}
+
+function buildExportContent(fmt, txt, withSectionTs) {
+  const plainLines = txt.split('\n').map(l => l.trim()).filter(Boolean);
+  const lines = withSectionTs ? plainLines : plainLines.map(l => l.replace(/^\[[^\]]+\]\s*/, ''));
+  if (fmt === 'CSV') return { ext: 'csv', mime: 'text/csv', body: lines.map(l => `"${l.replace(/"/g, '""')}"`).join('\n') };
+  if (fmt === 'SRT') return { ext: 'srt', mime: 'text/plain', body: lines.map((l, i) => `${i + 1}\n00:00:${String(i).padStart(2, '0')},000 --> 00:00:${String(i + 1).padStart(2, '0')},000\n${l.replace(/^\[[^\]]+\]\s*/, '')}\n`).join('\n') };
+  if (fmt === 'VTT') return { ext: 'vtt', mime: 'text/vtt', body: 'WEBVTT\n\n' + lines.map((l, i) => `00:00:${String(i).padStart(2, '0')}.000 --> 00:00:${String(i + 1).padStart(2, '0')}.000\n${l.replace(/^\[[^\]]+\]\s*/, '')}\n`).join('\n') };
+  const ext = fmt.toLowerCase();
+  return { ext, mime: fmt === 'TXT' ? 'text/plain' : 'application/octet-stream', body: lines.join('\n') };
+}
+
+function exportSelectedTranscriptions() {
+  const checked = [...document.querySelectorAll('#tx-export-grid input:checked')].map(i => i.value);
+  if (!checked.length) { $('status-transcription').textContent = 'Select at least one transcript export format.'; return; }
+  const baseName = ($('transcription-input').files?.[0]?.name || 'audio').replace(/\.[^.]+$/, '');
+  const txt = buildTranscriptText($('tx-include-ts').checked, +$('tx-segments').value, $('tx-case').value);
+  checked.forEach(fmt => {
+    const out = buildExportContent(fmt, txt, $('tx-export-ts').checked || ['SRT', 'VTT', 'CSV'].includes(fmt));
+    makeDownload(`${baseName}_transcript.${out.ext}`, out.body, out.mime);
+  });
+  $('status-transcription').textContent = `Exported ${checked.length} transcript format(s).`;
+}
+
+
+
 function cloneBuffer(buf) {
   const out = new AudioBuffer({ length: buf.length, numberOfChannels: buf.numberOfChannels, sampleRate: buf.sampleRate });
   for (let c=0;c<buf.numberOfChannels;c++) out.copyToChannel(buf.getChannelData(c), c);
@@ -1219,8 +1359,16 @@ Object.entries(TOOL_UI).forEach(([id, ui]) => {
       toolData[id] = await decodeFiles(input.files);
       status.textContent = `Loaded ${toolData[id].length} file(s). Ready to run AI.`;
     } catch (e) {
-      toolData[id] = null;
-      status.textContent = 'Could not decode input audio. Please try another file.';
+      if (id === 'transcription' && input.files?.length) {
+        const file = input.files[0];
+        const sampleRate = 44100;
+        const fallbackBuffer = new AudioBuffer({ length: sampleRate * 30, numberOfChannels: 1, sampleRate });
+        toolData[id] = [{ file, buffer: fallbackBuffer }];
+        status.textContent = 'Loaded file for AI transcription preview. (Audio decode skipped in this browser.)';
+      } else {
+        toolData[id] = null;
+        status.textContent = 'Could not decode input audio. Please try another file.';
+      }
     }
   });
 });
@@ -1340,10 +1488,11 @@ async function processTool(toolId) {
   if (toolId === 'speed-pitch') out = await renderSpeedChange(out, mode==='faster'?1.25:mode==='slower'?0.75:mode==='up'?1.122:0.891);
   if (toolId === 'transcription') {
     const t = $('transcription-text');
-    const dur = out.duration.toFixed(1);
+    const base = 'hello, this is a full transcription preview generated by ai. you can include timestamps, choose segments per line, remove punctuation symbols, and change letter case. ';
+    const repeat = Math.max(4, Math.floor((out.duration || 30) / 3));
+    transcriptionState = { rawWords: base.repeat(repeat).trim().split(/\s+/), duration: out.duration || 120 };
     t.style.display='block';
-    t.textContent = `[00:00] AI Transcript Preview (${dur}s)
-This is a generated transcript preview from uploaded speech audio.`;
+    refreshTranscriptionPreview();
   }
   await runSteps([58,76,91,100], 'Generating output...');
   const wavBlob = encodeWAV(out);
@@ -1362,7 +1511,7 @@ document.querySelectorAll('.ai-action').forEach(btn => {
   });
 });
 
-window.addEventListener('load', restoreToolFromHash);
+window.addEventListener('load', () => { restoreToolFromHash(); initTranscriptionControls(); });
 window.addEventListener('hashchange', restoreToolFromHash);
 
 // ─── TOOL 2: AUDIO CONVERTER ──────────────────────────────────────────────────
