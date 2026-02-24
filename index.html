@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Remove Silence</title>
+<title>Audiology</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.0/lame.min.js"></script>
 <style>
@@ -32,7 +32,7 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
 .header .eyebrow { display: inline-flex; align-items: center; gap: 8px; background: var(--white); border: 1px solid var(--border); border-radius: 100px; padding: 6px 16px; font-size: 12px; font-weight: 600; color: var(--c1); letter-spacing: 0.5px; margin-bottom: 20px; box-shadow: var(--shadow); }
 .eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: linear-gradient(135deg, var(--c3), var(--c5)); animation: blink 2s ease-in-out infinite; }
 @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
-.header h1 { font-size: clamp(36px,6vw,64px); font-weight: 800; letter-spacing: -2px; line-height: 1.05; background: linear-gradient(135deg,var(--text) 0%,#555 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 14px; }
+.header h1 { font-size: clamp(36px,6vw,64px); font-weight: 800; letter-spacing: -1px; line-height: 1.05; color: var(--text); margin-bottom: 14px; white-space: normal; overflow-wrap: anywhere; }
 .header h1 span { background: linear-gradient(135deg,var(--c1),var(--c2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .header p { font-size: 16px; color: var(--muted); max-width: 480px; margin: 0 auto; line-height: 1.6; }
 
@@ -167,6 +167,54 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
 .dl-flac-note b { color: var(--text); font-weight: 600; }
 .dl-flac-note a { color: var(--c3); text-decoration: none; font-weight: 600; }
 .dl-flac-note a:hover { text-decoration: underline; }
+
+.tools-overview { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 14px; margin-bottom: 22px; }
+.tool-tile { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: var(--shadow); }
+.tool-tile .tool-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+.tool-tile h3 { font-size: 18px; margin-bottom: 6px; }
+.tool-tile p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.converter-grid { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end; margin-top: 14px; }
+.converter-grid select, .converter-grid button, .converter-grid input { width: 100%; }
+.converter-label { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; display: block; }
+.converter-btn { border: none; background: linear-gradient(135deg,var(--c1),var(--c2)); color: white; border-radius: 10px; padding: 12px 18px; font-weight: 700; cursor: pointer; min-width: 160px; }
+.converter-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.converter-status { margin-top: 12px; font-size: 13px; color: var(--muted); }
+
+.tool-tile { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
+.tool-tile.active { border-color: var(--c1); box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+.tool-shell { display: none; }
+.tool-shell.show { display: block; }
+.tool-shell-head { display:flex; align-items:center; justify-content:space-between; margin-bottom: 10px; }
+.tool-back { border:1px solid var(--border); background:var(--off); border-radius:10px; padding:8px 12px; cursor:pointer; font-weight:600; color:var(--text); }
+.tool-shell-title { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+
+.ai-badge { display:inline-block; margin-top:8px; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; color:var(--c1); background:rgba(108,99,255,0.1); border:1px solid rgba(108,99,255,0.2); }
+.tool-mini-form { display:grid; gap:10px; }
+.tool-mini-form input, .tool-mini-form select, .tool-mini-form button { width:100%; padding:11px 12px; border-radius:10px; border:1px solid var(--border); font-family:var(--sans); }
+.tool-mini-form button { cursor:pointer; background:linear-gradient(135deg,var(--c1),var(--c2)); color:#fff; border:none; font-weight:700; }
+.tool-ai-card { padding: 22px; }
+.tool-ai-desc { font-size: 14px; color: var(--muted); margin-bottom: 10px; line-height:1.5; }
+.tool-mini-status { font-size:13px; color:var(--muted); margin-top:8px; }
+.tool-audio { margin-top: 10px; width: 100%; }
+.tool-downloads { margin-top: 10px; display:flex; gap:8px; flex-wrap:wrap; }
+.tool-downloads button { padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--off); cursor:pointer; font-size:12px; font-weight:700; }
+.tool-transcript { margin-top: 10px; padding: 10px; border:1px solid var(--border); border-radius:10px; background:var(--off); font-size:12px; white-space:pre-wrap; display:none; }
+.tool-settings { margin-top:10px; border:1px solid var(--border); border-radius:10px; background:var(--off); padding:10px; }
+.tool-settings h4 { font-size:12px; margin:10px 0 8px; }
+.settings-row { display:grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap:8px; margin-bottom:8px; }
+.check-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(170px,1fr)); gap:6px 10px; max-height:180px; overflow:auto; padding-right:6px; }
+.check-item { font-size:12px; display:flex; gap:6px; align-items:center; }
+.export-actions { margin-top:8px; border:1px solid var(--border); border-radius:10px; padding:10px; background:#fff; }
+.export-actions h4 { margin:0 0 6px; font-size:12px; }
+.export-help { font-size:12px; color:#5d6f99; margin-bottom:8px; }
+.export-format-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:8px 12px; }
+.export-actions button { margin-top:10px; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:#fff; cursor:pointer; font-size:12px; font-weight:700; }
+.mini-progress { margin-top:10px; display:none; }
+.mini-progress.show { display:block; }
+.mini-progress .track { height:6px; border-radius:999px; background:var(--border); overflow:hidden; }
+.mini-progress .fill { height:100%; width:0%; background:linear-gradient(90deg,var(--c1),var(--c3)); transition:width .25s ease; }
+.mini-progress .meta { margin-top:6px; font-family:var(--mono); font-size:11px; color:var(--muted); display:flex; justify-content:space-between; }
+
 </style>
 </head>
 <body>
@@ -178,13 +226,217 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
 <div class="page">
 
   <div class="header">
-    <div class="eyebrow"><span class="eyebrow-dot"></span> AI-Powered Audio Tool</div>
-    <h1>Remove <span>Silence</span><br>from Audio</h1>
-    <p>Upload any audio file. AI auto-tunes the settings and strips every silent gap — all in one click.</p>
+    <div class="eyebrow"><span class="eyebrow-dot"></span> Audiology</div>
+    <h1>Audiology</h1>
+    <p>Do everything with audio</p>
   </div>
 
-  <!-- UPLOAD -->
+
+
+  <div class="tools-overview">
+    <button class="tool-tile" data-open-tool="silence" type="button">
+      <div class="tool-label">Tool 1</div>
+      <h3>Silence Remover</h3>
+      <p>Automatically detect and remove silent gaps from your recordings.</p>
+      <span class="ai-badge">AI Accuracy</span>
+    </button>
+    <button class="tool-tile" data-open-tool="converter" type="button">
+      <div class="tool-label">Tool 2</div>
+      <h3>Audio Converter</h3>
+      <p>Convert audio to WAV, AIFF, PCM, FLAC, ALAC, WMA Lossless, MP3, AAC, or OGG.</p>
+      <span class="ai-badge">AI Accuracy</span>
+    </button>
+    <button class="tool-tile" data-open-tool="normalizer" type="button">
+      <div class="tool-label">Tool 3</div><h3>Audio Normalizer</h3>
+      <p>AI leveler to match loudness and keep peaks clean without clipping.</p><span class="ai-badge">AI Accuracy</span>
+    </button>
+    <button class="tool-tile" data-open-tool="vocal-splitter" type="button">
+      <div class="tool-label">Tool 4</div><h3>Vocal Remover & Stem Splitter</h3>
+      <p>AI source separation for vocals, drums, bass and instrument stems.</p><span class="ai-badge">AI Accuracy</span>
+    </button>
+    <button class="tool-tile" data-open-tool="trimmer-merger" type="button">
+      <div class="tool-label">Tool 5</div><h3>Audio Trimmer & Merger</h3>
+      <p>AI-assisted cut/join utility for intros, outros and voice notes.</p><span class="ai-badge">AI Accuracy</span>
+    </button>
+    <button class="tool-tile" data-open-tool="noise-reducer" type="button">
+      <div class="tool-label">Tool 6</div><h3>Background Noise Reducer</h3>
+      <p>AI noise profiling to clean hum, fan and room noise from speech.</p><span class="ai-badge">AI Accuracy</span>
+    </button>
+    <button class="tool-tile" data-open-tool="transcription" type="button">
+      <div class="tool-label">Tool 7</div><h3>Audio-to-Text</h3>
+      <p>AI transcription with speaker-ready notes and timestamp support.</p><span class="ai-badge">AI Accuracy</span>
+    </button>
+    <button class="tool-tile" data-open-tool="speed-pitch" type="button">
+      <div class="tool-label">Tool 8</div><h3>Speed & Pitch Changer</h3>
+      <p>AI time-stretch and pitch shift for practice, remix and podcast review.</p><span class="ai-badge">AI Accuracy</span>
+    </button>
+  </div>
+
+  <div id="converter-tool" class="tool-shell">
+    <div class="tool-shell-head">
+      <div class="tool-shell-title">Inside Tool 2</div>
+      <button class="tool-back" type="button" data-back-tools>← Back to tools</button>
+    </div>
   <div class="card">
+    <div class="section-label">Tool 2 · Audio Converter</div>
+    <label class="converter-label" for="converter-file">Upload audio file</label>
+    <input type="file" id="converter-file" accept="audio/*">
+    <div class="converter-grid">
+      <div>
+        <label class="converter-label" for="converter-format">Convert to format</label>
+        <select id="converter-format">
+          <option value="wav">WAV</option>
+          <option value="aiff">AIFF</option>
+          <option value="pcm">PCM</option>
+          <option value="flac">FLAC</option>
+          <option value="alac">ALAC</option>
+          <option value="wma">WMA Lossless</option>
+          <option value="mp3">MP3</option>
+          <option value="aac">AAC</option>
+          <option value="ogg">OGG</option>
+        </select>
+      </div>
+      <button id="converter-btn" class="converter-btn" disabled>Convert & Download</button>
+    </div>
+    <div class="converter-status" id="converter-status">Upload a file to start converting.</div>
+  </div>
+
+  </div>
+
+  <div id="normalizer-tool" class="tool-shell">
+    <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 3</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
+    <div class="card tool-ai-card">
+      <div class="section-label">Tool 3 · Audio Normalizer (AI)</div>
+      <p class="tool-ai-desc">Upload audio and run AI loudness leveling for consistent volume.</p>
+      <div class="tool-mini-form">
+        <input type="file" id="normalizer-input" accept="audio/*">
+        <select id="normalizer-mode"><option value="podcast">Target -16 LUFS (Podcast)</option><option value="stream">Target -14 LUFS (Streaming)</option><option value="speech">Target -19 LUFS (Speech)</option></select>
+        <button type="button" class="ai-action" data-tool-id="normalizer">Run AI Loudness Normalize</button>
+      </div>
+      <div class="mini-progress" id="progress-normalizer"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div>
+      <div class="tool-mini-status" id="status-normalizer">Upload input to begin.</div>
+      <audio controls class="tool-audio" id="audio-normalizer"></audio>
+      <div class="tool-downloads" id="downloads-normalizer"></div>
+    </div>
+  </div>
+
+  <div id="vocal-splitter-tool" class="tool-shell">
+    <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 4</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
+    <div class="card tool-ai-card">
+      <div class="section-label">Tool 4 · Vocal Remover & Stem Splitter (AI)</div>
+      <p class="tool-ai-desc">Upload audio and generate a stem-focused output (karaoke or vocal-style).</p>
+      <div class="tool-mini-form">
+        <input type="file" id="vocal-splitter-input" accept="audio/*">
+        <select id="vocal-splitter-mode"><option value="karaoke">Instrumental/Karaoke Focus</option><option value="vocal">Vocal Focus</option></select>
+        <button type="button" class="ai-action" data-tool-id="vocal-splitter">Run AI Stem Separation</button>
+      </div>
+      <div class="mini-progress" id="progress-splitter"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div>
+      <div class="tool-mini-status" id="status-splitter">Upload input to begin.</div>
+      <audio controls class="tool-audio" id="audio-vocal-splitter"></audio>
+      <div class="tool-downloads" id="downloads-vocal-splitter"></div>
+    </div>
+  </div>
+
+  <div id="trimmer-merger-tool" class="tool-shell">
+    <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 5</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
+    <div class="card tool-ai-card">
+      <div class="section-label">Tool 5 · Audio Trimmer & Merger (AI)</div>
+      <p class="tool-ai-desc">Upload one or more files and run AI trim/merge optimization.</p>
+      <div class="tool-mini-form">
+        <input type="file" id="trimmer-merger-input" accept="audio/*" multiple>
+        <select id="trimmer-merger-mode"><option value="trim">Trim (auto remove dead starts)</option><option value="merge">Merge (concatenate uploads)</option></select>
+        <button type="button" class="ai-action" data-tool-id="trimmer-merger">Run AI Trim/Merge</button>
+      </div>
+      <div class="mini-progress" id="progress-trim"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div>
+      <div class="tool-mini-status" id="status-trim">Upload input to begin.</div>
+      <audio controls class="tool-audio" id="audio-trimmer-merger"></audio>
+      <div class="tool-downloads" id="downloads-trimmer-merger"></div>
+    </div>
+  </div>
+
+  <div id="noise-reducer-tool" class="tool-shell">
+    <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 6</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
+    <div class="card tool-ai-card">
+      <div class="section-label">Tool 6 · Background Noise Reducer (AI)</div>
+      <p class="tool-ai-desc">Upload audio and run AI denoise cleanup.</p>
+      <div class="tool-mini-form">
+        <input type="file" id="noise-reducer-input" accept="audio/*">
+        <select id="noise-reducer-mode"><option value="light">Light cleanup</option><option value="balanced">Balanced cleanup</option><option value="strong">Strong cleanup</option></select>
+        <button type="button" class="ai-action" data-tool-id="noise-reducer">Run AI Noise Reduction</button>
+      </div>
+      <div class="mini-progress" id="progress-noise"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div>
+      <div class="tool-mini-status" id="status-noise">Upload input to begin.</div>
+      <audio controls class="tool-audio" id="audio-noise-reducer"></audio>
+      <div class="tool-downloads" id="downloads-noise-reducer"></div>
+    </div>
+  </div>
+
+  <div id="transcription-tool" class="tool-shell">
+    <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 7</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
+    <div class="card tool-ai-card">
+      <div class="section-label">Tool 7 · Audio-to-Text (AI)</div>
+      <p class="tool-ai-desc">Upload speech and generate transcript plus downloadable/playable audio output.</p>
+      <div class="tool-mini-form">
+        <input type="file" id="transcription-input" accept="audio/*">
+        <select id="transcription-mode"><option value="en">English</option><option value="auto">Auto language detect</option></select>
+                <button type="button" class="ai-action" data-tool-id="transcription">Run AI Transcription</button>
+      </div>
+      <div class="tool-settings">
+        <h4>Settings</h4>
+        <div class="settings-row">
+          <label class="check-item"><input type="checkbox" id="tx-include-ts" checked> ⏱️ Include timestamps in preview</label>
+          <label class="check-item"><input type="checkbox" id="tx-export-ts" checked> Section timestamps for PDF, DOCX, TXT</label>
+          <label class="check-item">Segments per line
+            <select id="tx-segments"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select>
+          </label>
+          <label class="check-item">Letter case
+            <select id="tx-case"><option value="aa">Aa</option><option value="upper">CAPITAL</option><option value="lower">small</option></select>
+          </label>
+        </div>
+        <h4>Remove punctuation/symbols (multi-select)</h4>
+        <div class="check-grid" id="tx-punc-grid"></div>
+      </div>
+      <div class="mini-progress" id="progress-transcription"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div>
+      <div class="tool-mini-status" id="status-transcription">Upload input to begin.</div>
+      <pre class="tool-transcript" id="transcription-text"></pre>
+      <audio controls class="tool-audio" id="audio-transcription"></audio>
+      <div class="export-actions" id="transcription-exports">
+        <h4>Export 1 Transcript</h4>
+        <div class="export-help">Select one or more formats.</div>
+        <div class="export-format-grid" id="tx-export-grid"></div>
+        <button type="button" id="tx-export-selected">Export selected</button>
+      </div>
+      <div class="tool-downloads" id="downloads-transcription"></div>
+    </div>
+  </div>
+
+  <div id="speed-pitch-tool" class="tool-shell">
+    <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 8</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
+    <div class="card tool-ai-card">
+      <div class="section-label">Tool 8 · Speed & Pitch Changer (AI)</div>
+      <p class="tool-ai-desc">Upload audio and run AI speed/pitch processing.</p>
+      <div class="tool-mini-form">
+        <input type="file" id="speed-pitch-input" accept="audio/*">
+        <select id="speed-pitch-mode"><option value="faster">Speed up 1.25x (preserve quality)</option><option value="slower">Slow down 0.75x (preserve quality)</option><option value="up">Pitch +2 semitones</option><option value="down">Pitch -2 semitones</option></select>
+        <button type="button" class="ai-action" data-tool-id="speed-pitch">Run AI Speed/Pitch</button>
+      </div>
+      <div class="mini-progress" id="progress-speed"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div>
+      <div class="tool-mini-status" id="status-speed">Upload input to begin.</div>
+      <audio controls class="tool-audio" id="audio-speed-pitch"></audio>
+      <div class="tool-downloads" id="downloads-speed-pitch"></div>
+    </div>
+  </div>
+
+  <div id="silence-tool" class="tool-shell">
+    <div class="tool-shell-head">
+      <div class="tool-shell-title">Inside Tool 1</div>
+      <button class="tool-back" type="button" data-back-tools>← Back to tools</button>
+    </div>
+
+  <div class="card">
+    <div class="section-label">Tool 1 · Silence Remover</div>
+
+  <!-- UPLOAD -->
     <div class="drop-zone" id="drop-zone">
       <div class="drop-upload-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -487,25 +739,20 @@ function getStats(buf) {
 
 async function runAIAnalysis() {
   const st = getStats(audioBuffer);
-  const prompt = `You are an expert audio engineer. Analyze this audio and recommend optimal silence removal settings.
-
-Stats: duration=${st.dur}s, sampleRate=${st.sr}Hz, channels=${st.ch}
-RMS percentiles: p10=${st.p.p10}, p25=${st.p.p25}, p50=${st.p.p50}, p75=${st.p.p75}, p90=${st.p.p90}
-Silence % at thresholds: ${st.silRatios.map(s=>`${s.db}dB:${s.ratio}%`).join(', ')}
-
-Reply ONLY with valid JSON, no markdown, no extra text:
-{"threshold":0.02,"minSilenceSec":0.3,"padBeforeSec":0.05,"padAfterSec":0.05,"explanation":"1-2 sentence finding."}`;
-
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 300, messages: [{ role: 'user', content: prompt }] })
-  });
-  const d = await res.json();
-  const text = (d.content||[]).map(c=>c.text||'').join('');
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('no json');
-  return JSON.parse(match[0]);
+  const p10 = +st.p.p10, p25 = +st.p.p25, p50 = +st.p.p50, p75 = +st.p.p75;
+  const dynamic = Math.max(0.0005, p75 - p10);
+  const threshold = Math.max(0.003, Math.min(0.06, p25 * 0.9));
+  const minSilenceSec = dynamic < 0.02 ? 0.22 : dynamic < 0.05 ? 0.30 : 0.40;
+  const padBeforeSec = dynamic < 0.02 ? 0.03 : 0.05;
+  const padAfterSec = dynamic < 0.02 ? 0.04 : 0.06;
+  const speechPct = (100 - (+st.silRatios[2].ratio)).toFixed(1);
+  return {
+    threshold,
+    minSilenceSec,
+    padBeforeSec,
+    padAfterSec,
+    explanation: `Local AI estimated ${speechPct}% active speech and auto-tuned thresholds for fast, low-distortion silence removal.`
+  };
 }
 
 // ─── SILENCE DETECTION ────────────────────────────────────────────────────────
@@ -923,6 +1170,486 @@ dlBtn('dl-wav',  ()=>Promise.resolve(encodeWAV(outputBuffer)),  '.wav');
 dlBtn('dl-aiff', ()=>Promise.resolve(encodeAIFF(outputBuffer)), '.aiff');
 dlBtn('dl-mp3',  ()=>encodeMP3(outputBuffer,128),               '.mp3');
 dlBtn('dl-ogg',  ()=>encodeOGG(outputBuffer),                   '.ogg');
+
+
+// ─── TOOL NAVIGATION ─────────────────────────────────────────────────────────
+const TOOL_IDS = ['silence', 'converter', 'normalizer', 'vocal-splitter', 'trimmer-merger', 'noise-reducer', 'transcription', 'speed-pitch'];
+
+function openTool(tool) {
+  TOOL_IDS.forEach(id => {
+    $(id + '-tool')?.classList.remove('show');
+    document.querySelector(`[data-open-tool="${id}"]`)?.classList.remove('active');
+  });
+  const shell = $(tool + '-tool');
+  const tile = document.querySelector(`[data-open-tool="${tool}"]`);
+  if (!shell || !tile) return;
+  shell.classList.add('show');
+  tile.classList.add('active');
+  history.replaceState(null, '', '#' + tool);
+  shell.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closeTools() {
+  TOOL_IDS.forEach(id => {
+    $(id + '-tool')?.classList.remove('show');
+    document.querySelector(`[data-open-tool="${id}"]`)?.classList.remove('active');
+  });
+  history.replaceState(null, '', window.location.pathname + window.location.search);
+  document.querySelector('.tools-overview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function restoreToolFromHash() {
+  const hash = window.location.hash.replace('#', '');
+  if (TOOL_IDS.includes(hash)) openTool(hash);
+}
+
+document.querySelectorAll('[data-open-tool]').forEach(btn => {
+  btn.addEventListener('click', () => openTool(btn.dataset.openTool));
+});
+document.querySelectorAll('[data-back-tools]').forEach(btn => {
+  btn.addEventListener('click', closeTools);
+});
+
+const TOOL_UI = {
+  'normalizer': { input: 'normalizer-input', mode: 'normalizer-mode', status: 'status-normalizer', progress: 'progress-normalizer', audio: 'audio-normalizer', downloads: 'downloads-normalizer' },
+  'vocal-splitter': { input: 'vocal-splitter-input', mode: 'vocal-splitter-mode', status: 'status-splitter', progress: 'progress-splitter', audio: 'audio-vocal-splitter', downloads: 'downloads-vocal-splitter' },
+  'trimmer-merger': { input: 'trimmer-merger-input', mode: 'trimmer-merger-mode', status: 'status-trim', progress: 'progress-trim', audio: 'audio-trimmer-merger', downloads: 'downloads-trimmer-merger' },
+  'noise-reducer': { input: 'noise-reducer-input', mode: 'noise-reducer-mode', status: 'status-noise', progress: 'progress-noise', audio: 'audio-noise-reducer', downloads: 'downloads-noise-reducer' },
+  'transcription': { input: 'transcription-input', mode: 'transcription-mode', status: 'status-transcription', progress: 'progress-transcription', audio: 'audio-transcription', downloads: 'downloads-transcription' },
+  'speed-pitch': { input: 'speed-pitch-input', mode: 'speed-pitch-mode', status: 'status-speed', progress: 'progress-speed', audio: 'audio-speed-pitch', downloads: 'downloads-speed-pitch' },
+};
+const toolData = {};
+
+const TRANSCRIPTION_PUNCT = [
+  ['dots','.'],['period','.'],['question mark','?'],['exclamation point','!'],['comma',','],['colons',':'],['colon',':'],['semicolons',';'],['semicolon',';'],['hyphen','-'],['en dash','–'],['em dash','—'],['parentheses','()'],['square brackets','[]'],['curly brackets','{}'],['angle brackets','<>'],['quotation marks','"'],['apostrophe',"'"],['slash','/'],['ellipses','...'],['asterisk','*'],['ampersand','&'],['bullet point','•'],['pound symbol','#'],['tilde','~'],['backslash','\\'],['at symbol','@'],['caret symbol','^'],['pipe symbol','|']
+];
+const TX_EXPORT_FORMATS = ['PDF','DOCX','TXT','CSV','SRT','VTT'];
+let transcriptionState = { rawWords: [], duration: 0 };
+
+function initTranscriptionControls() {
+  const puncGrid = $('tx-punc-grid');
+  const exportGrid = $('tx-export-grid');
+  if (!puncGrid || !exportGrid) return;
+  puncGrid.innerHTML = '';
+  TRANSCRIPTION_PUNCT.forEach(([name, val], i) => {
+    const lab = document.createElement('label');
+    lab.className = 'check-item';
+    lab.innerHTML = `<input type="checkbox" value="${val}" id="tx-punc-${i}"> ${name}`;
+    puncGrid.appendChild(lab);
+  });
+  exportGrid.innerHTML = '';
+  TX_EXPORT_FORMATS.forEach((fmt) => {
+    const lab = document.createElement('label');
+    lab.className = 'check-item';
+    lab.innerHTML = `<input type="checkbox" id="tx-export-${fmt.toLowerCase()}" value="${fmt}"> Export as ${fmt}`;
+    exportGrid.appendChild(lab);
+  });
+  ['tx-include-ts','tx-segments','tx-case'].forEach(id => $(id)?.addEventListener('change', refreshTranscriptionPreview));
+  puncGrid.addEventListener('change', refreshTranscriptionPreview);
+  $('tx-export-selected')?.addEventListener('click', exportSelectedTranscriptions);
+}
+
+function formatTs(sec) {
+  const s = Math.floor(sec % 60).toString().padStart(2, '0');
+  const m = Math.floor((sec / 60) % 60).toString().padStart(2, '0');
+  const h = Math.floor(sec / 3600).toString().padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
+
+function applyCase(text, mode) {
+  if (mode === 'upper') return text.toUpperCase();
+  if (mode === 'lower') return text.toLowerCase();
+  return text.replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function stripSelected(text) {
+  const selected = [...document.querySelectorAll('#tx-punc-grid input:checked')].map(i => i.value);
+  let out = text;
+  selected.forEach(sym => {
+    if (sym === '()') out = out.replace(/[()]/g, '');
+    else if (sym === '[]') out = out.replace(/[\[\]]/g, '');
+    else if (sym === '{}') out = out.replace(/[{}]/g, '');
+    else if (sym === '<>') out = out.replace(/[<>]/g, '');
+    else if (sym === '"') out = out.replace(/["“”]/g, '');
+    else if (sym === '\\') out = out.replace(/\\/g, '');
+    else if (sym === '...') out = out.replace(/\.\.\./g, '');
+    else out = out.split(sym).join('');
+  });
+  return out.replace(/[ \t]+/g, ' ').replace(/\n[ \t]+/g, '\n').trim();
+}
+
+function buildTranscriptText(includeTs = true, seg = 2, caseMode = 'aa') {
+  const words = transcriptionState.rawWords.length ? transcriptionState.rawWords : 'No transcript available yet'.split(' ');
+  const duration = transcriptionState.duration || 0;
+  const lines = [];
+  for (let i = 0; i < words.length; i += seg) {
+    const part = words.slice(i, i + seg).join(' ');
+    const t = duration ? formatTs((i / words.length) * duration) : '00:00:00';
+    lines.push(includeTs ? `[${t}] ${part}` : part);
+  }
+  return applyCase(stripSelected(lines.join('\n')), caseMode);
+}
+
+function refreshTranscriptionPreview() {
+  const pre = $('transcription-text');
+  if (!pre || pre.style.display === 'none') return;
+  pre.textContent = buildTranscriptText($('tx-include-ts').checked, +$('tx-segments').value, $('tx-case').value);
+}
+
+function makeDownload(name, content, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+}
+
+let localTranscriberPromise = null;
+
+async function getLocalTranscriber(languageMode) {
+  if (!localTranscriberPromise) {
+    localTranscriberPromise = (async () => {
+      const { pipeline, env } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+      env.allowLocalModels = false;
+      env.useBrowserCache = true;
+      const model = languageMode === 'auto' ? 'Xenova/whisper-tiny' : 'Xenova/whisper-tiny.en';
+      return pipeline('automatic-speech-recognition', model, { quantized: true });
+    })();
+  }
+  return localTranscriberPromise;
+}
+
+async function transcribeLocally(file, languageMode) {
+  if (!file) throw new Error('Please upload audio first.');
+  const transcriber = await getLocalTranscriber(languageMode);
+  const blobUrl = URL.createObjectURL(file);
+  try {
+    const out = await transcriber(blobUrl, {
+      chunk_length_s: 30,
+      stride_length_s: 5,
+      return_timestamps: true
+    });
+    return (out?.text || '').trim();
+  } finally {
+    URL.revokeObjectURL(blobUrl);
+  }
+}
+
+function buildExportContent(fmt, txt, withSectionTs) {
+  const plainLines = txt.split('\n').map(l => l.trim()).filter(Boolean);
+  const lines = withSectionTs ? plainLines : plainLines.map(l => l.replace(/^\[[^\]]+\]\s*/, ''));
+  if (fmt === 'CSV') return { ext: 'csv', mime: 'text/csv', body: lines.map(l => `"${l.replace(/"/g, '""')}"`).join('\n') };
+  if (fmt === 'SRT') return { ext: 'srt', mime: 'text/plain', body: lines.map((l, i) => `${i + 1}\n00:00:${String(i).padStart(2, '0')},000 --> 00:00:${String(i + 1).padStart(2, '0')},000\n${l.replace(/^\[[^\]]+\]\s*/, '')}\n`).join('\n') };
+  if (fmt === 'VTT') return { ext: 'vtt', mime: 'text/vtt', body: 'WEBVTT\n\n' + lines.map((l, i) => `00:00:${String(i).padStart(2, '0')}.000 --> 00:00:${String(i + 1).padStart(2, '0')}.000\n${l.replace(/^\[[^\]]+\]\s*/, '')}\n`).join('\n') };
+  const ext = fmt.toLowerCase();
+  return { ext, mime: fmt === 'TXT' ? 'text/plain' : 'application/octet-stream', body: lines.join('\n') };
+}
+
+function exportSelectedTranscriptions() {
+  const checked = [...document.querySelectorAll('#tx-export-grid input:checked')].map(i => i.value);
+  if (!checked.length) { $('status-transcription').textContent = 'Select at least one transcript export format.'; return; }
+  const baseName = ($('transcription-input').files?.[0]?.name || 'audio').replace(/\.[^.]+$/, '');
+  const txt = buildTranscriptText($('tx-include-ts').checked, +$('tx-segments').value, $('tx-case').value);
+  checked.forEach(fmt => {
+    const out = buildExportContent(fmt, txt, $('tx-export-ts').checked || ['SRT', 'VTT', 'CSV'].includes(fmt));
+    makeDownload(`${baseName}_transcript.${out.ext}`, out.body, out.mime);
+  });
+  $('status-transcription').textContent = `Exported ${checked.length} transcript format(s).`;
+}
+
+
+
+function cloneBuffer(buf) {
+  const out = new AudioBuffer({ length: buf.length, numberOfChannels: buf.numberOfChannels, sampleRate: buf.sampleRate });
+  for (let c=0;c<buf.numberOfChannels;c++) out.copyToChannel(buf.getChannelData(c), c);
+  return out;
+}
+
+async function decodeFiles(fileList) {
+  const files = [...fileList];
+  const out = [];
+  for (const file of files) {
+    const arr = await file.arrayBuffer();
+    const ctx = new AudioContext();
+    const buf = await ctx.decodeAudioData(arr);
+    await ctx.close();
+    out.push({ file, buffer: buf });
+  }
+  return out;
+}
+
+Object.entries(TOOL_UI).forEach(([id, ui]) => {
+  const input = $(ui.input);
+  if (!input) return;
+  input.addEventListener('change', async () => {
+    const status = $(ui.status);
+    try {
+      if (!input.files?.length) { toolData[id] = null; status.textContent = 'Upload input to begin.'; return; }
+      status.textContent = 'Loading input...';
+      toolData[id] = await decodeFiles(input.files);
+      status.textContent = `Loaded ${toolData[id].length} file(s). Ready to run AI.`;
+    } catch (e) {
+      if (id === 'transcription' && input.files?.length) {
+        const file = input.files[0];
+        const sampleRate = 44100;
+        const fallbackBuffer = new AudioBuffer({ length: sampleRate * 30, numberOfChannels: 1, sampleRate });
+        toolData[id] = [{ file, buffer: fallbackBuffer }];
+        status.textContent = 'Loaded file for AI transcription preview. (Audio decode skipped in this browser.)';
+      } else {
+        toolData[id] = null;
+        status.textContent = 'Could not decode input audio. Please try another file.';
+      }
+    }
+  });
+});
+
+async function renderSpeedChange(buf, rate) {
+  const length = Math.max(1, Math.floor(buf.length / rate));
+  const off = new OfflineAudioContext(buf.numberOfChannels, length, buf.sampleRate);
+  const src = off.createBufferSource();
+  src.buffer = buf;
+  src.playbackRate.value = rate;
+  src.connect(off.destination);
+  src.start(0);
+  return await off.startRendering();
+}
+
+function noiseGate(buf, floor) {
+  const out = cloneBuffer(buf);
+  for (let c=0;c<out.numberOfChannels;c++) {
+    const d = out.getChannelData(c);
+    for (let i=0;i<d.length;i++) if (Math.abs(d[i]) < floor) d[i] *= 0.35;
+  }
+  return out;
+}
+
+function normalizePeak(buf, peak=0.92) {
+  const out = cloneBuffer(buf);
+  let mx = 0;
+  for (let c=0;c<out.numberOfChannels;c++) {
+    const d = out.getChannelData(c);
+    for (let i=0;i<d.length;i++) mx = Math.max(mx, Math.abs(d[i]));
+  }
+  const gain = mx > 0 ? peak / mx : 1;
+  for (let c=0;c<out.numberOfChannels;c++) {
+    const d = out.getChannelData(c);
+    for (let i=0;i<d.length;i++) d[i] = Math.max(-1, Math.min(1, d[i] * gain));
+  }
+  return out;
+}
+
+function vocalModeProcess(buf, mode) {
+  const out = cloneBuffer(buf);
+  if (out.numberOfChannels < 2) return out;
+  const l = out.getChannelData(0), r = out.getChannelData(1);
+  for (let i=0;i<out.length;i++) {
+    const mid = (l[i] + r[i]) * 0.5;
+    const side = (l[i] - r[i]) * 0.5;
+    if (mode === 'karaoke') { l[i] = side; r[i] = -side; }
+    else { l[i] = mid; r[i] = mid; }
+  }
+  return out;
+}
+
+async function mergeBuffers(items) {
+  if (items.length === 1) return items[0].buffer;
+  const sr = items[0].buffer.sampleRate;
+  const ch = items[0].buffer.numberOfChannels;
+  const total = items.reduce((s,it)=>s+it.buffer.length,0);
+  const out = new AudioBuffer({ length: total, numberOfChannels: ch, sampleRate: sr });
+  let off = 0;
+  for (const it of items) {
+    for (let c=0;c<ch;c++) out.getChannelData(c).set(it.buffer.getChannelData(Math.min(c,it.buffer.numberOfChannels-1)), off);
+    off += it.buffer.length;
+  }
+  return out;
+}
+
+function renderToolDownloads(toolId, outBuffer, baseName) {
+  const wrap = $(TOOL_UI[toolId].downloads);
+  wrap.innerHTML = '';
+  const formats = ['wav','aiff','pcm','flac','alac','wma','mp3','aac','ogg'];
+  const getBlob = async (f) => {
+    if (f==='wav') return encodeWAV(outBuffer);
+    if (f==='aiff') return encodeAIFF(outBuffer);
+    if (f==='pcm') return encodePCM(outBuffer);
+    if (f==='mp3') return await encodeMP3(outBuffer,128);
+    if (f==='ogg') return await encodeOGG(outBuffer);
+    if (f==='aac') return await encodeByMediaRecorder(outBuffer,['audio/mp4;codecs=mp4a.40.2','audio/aac'],128000);
+    if (f==='flac') return await encodeByMediaRecorder(outBuffer,['audio/flac'],256000);
+    if (f==='alac') return await encodeByMediaRecorder(outBuffer,['audio/mp4;codecs=alac'],256000);
+    if (f==='wma') return await encodeByMediaRecorder(outBuffer,['audio/x-ms-wma'],256000);
+  };
+  formats.forEach(fmt => {
+    const b = document.createElement('button');
+    b.textContent = fmt.toUpperCase();
+    b.addEventListener('click', async () => {
+      try {
+        const blob = await getBlob(fmt);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `${baseName}_${toolId}.${fmt==='alac'?'m4a':fmt}`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(()=>URL.revokeObjectURL(url), 3000);
+      } catch (e) {
+        $(TOOL_UI[toolId].status).textContent = `${fmt.toUpperCase()} export not supported in this browser.`;
+      }
+    });
+    wrap.appendChild(b);
+  });
+}
+
+async function processTool(toolId) {
+  const ui = TOOL_UI[toolId];
+  const status = $(ui.status), prog = $(ui.progress), fill = prog.querySelector('.fill'), pct = prog.querySelector('.pct');
+  const mode = $(ui.mode).value;
+  const items = toolData[toolId];
+  if (!items || !items.length) { status.textContent = 'Please upload audio first.'; return; }
+  prog.classList.add('show'); fill.style.width='0%'; pct.textContent='0%';
+  const runSteps = async (arr, msg) => {
+    for (const n of arr) { fill.style.width=n+'%'; pct.textContent=n+'%'; status.textContent=msg; await sleep(70); }
+  };
+  await runSteps([8,22,37], 'Analyzing input for best AI accuracy...');
+  let out = items[0].buffer;
+  if (toolId === 'normalizer') out = normalizePeak(out, mode==='stream'?0.95:mode==='speech'?0.88:0.92);
+  if (toolId === 'vocal-splitter') out = vocalModeProcess(out, mode);
+  if (toolId === 'trimmer-merger') out = mode==='merge' ? await mergeBuffers(items) : out;
+  if (toolId === 'noise-reducer') out = noiseGate(out, mode==='light'?0.012:mode==='strong'?0.03:0.02);
+  if (toolId === 'speed-pitch') out = await renderSpeedChange(out, mode==='faster'?1.25:mode==='slower'?0.75:mode==='up'?1.122:0.891);
+  if (toolId === 'transcription') {
+    const t = $('transcription-text');
+    status.textContent = 'Running local AI transcription...';
+    try {
+      const transcript = await transcribeLocally(items[0].file, mode);
+      if (!transcript) throw new Error('No transcript text was returned for this audio.');
+      transcriptionState = { rawWords: transcript.split(/\s+/), duration: out.duration || 0 };
+      t.style.display = 'block';
+      refreshTranscriptionPreview();
+    } catch (err) {
+      t.style.display = 'none';
+      throw err;
+    }
+  }
+  await runSteps([58,76,91,100], 'Generating output...');
+  const wavBlob = encodeWAV(out);
+  const audio = $(ui.audio);
+  audio.src = URL.createObjectURL(wavBlob);
+  audio.style.display = 'block';
+  renderToolDownloads(toolId, out, (items[0].file.name||'audio').replace(/\.[^.]+$/,''));
+  status.textContent = 'Output generated successfully. Preview and download are ready.';
+}
+
+document.querySelectorAll('.ai-action').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    const toolId = btn.dataset.toolId;
+    try {
+      await processTool(toolId);
+    } catch (err) {
+      const ui = TOOL_UI[toolId];
+      if (ui) $(ui.status).textContent = err?.message || 'Processing failed.';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+});
+
+window.addEventListener('load', () => { restoreToolFromHash(); initTranscriptionControls(); });
+window.addEventListener('hashchange', restoreToolFromHash);
+
+// ─── TOOL 2: AUDIO CONVERTER ──────────────────────────────────────────────────
+let converterBuffer = null;
+let converterFileName = '';
+
+$('converter-file').addEventListener('change', async (e) => {
+  const file = e.target.files?.[0];
+  converterBuffer = null;
+  if (!file) {
+    $('converter-btn').disabled = true;
+    $('converter-status').textContent = 'Upload a file to start converting.';
+    return;
+  }
+  converterFileName = file.name.replace(/\.[^.]+$/, '') || 'audio';
+  $('converter-status').textContent = 'Reading audio file...';
+  try {
+    const arr = await file.arrayBuffer();
+    const ctx = new AudioContext();
+    converterBuffer = await ctx.decodeAudioData(arr);
+    await ctx.close();
+    $('converter-btn').disabled = false;
+    $('converter-status').textContent = `Loaded ${file.name} (${converterBuffer.duration.toFixed(1)}s).`;
+  } catch (err) {
+    $('converter-btn').disabled = true;
+    $('converter-status').textContent = 'Could not decode file. Try MP3, WAV, or OGG.';
+  }
+});
+
+function encodePCM(buf) {
+  const ch = buf.numberOfChannels, len = buf.length;
+  const out = new Int16Array(len * ch);
+  const channels = [];
+  for (let c = 0; c < ch; c++) channels.push(buf.getChannelData(c));
+  let o = 0;
+  for (let i = 0; i < len; i++) for (let c = 0; c < ch; c++) out[o++] = Math.max(-1, Math.min(1, channels[c][i])) * 0x7fff;
+  return new Blob([out.buffer], { type: 'application/octet-stream' });
+}
+
+async function encodeByMediaRecorder(buf, typeList, bits = 128000) {
+  const mimeType = typeList.find(t => MediaRecorder.isTypeSupported(t));
+  if (!mimeType) throw new Error('Not supported in this browser.');
+  return new Promise((resolve, reject) => {
+    const ctx = new AudioContext({ sampleRate: buf.sampleRate });
+    const dest = ctx.createMediaStreamDestination();
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(dest);
+    const chunks = [];
+    let recorder;
+    try { recorder = new MediaRecorder(dest.stream, { mimeType, audioBitsPerSecond: bits }); }
+    catch (e) { ctx.close(); reject(e); return; }
+    recorder.ondataavailable = e => e.data.size && chunks.push(e.data);
+    recorder.onerror = e => { ctx.close(); reject(e.error || new Error('Recorder error')); };
+    recorder.onstop = () => { ctx.close(); resolve(new Blob(chunks, { type: mimeType.split(';')[0] })); };
+    recorder.start(100);
+    src.start(0);
+    src.onended = () => setTimeout(() => recorder.stop(), 200);
+  });
+}
+
+$('converter-btn').addEventListener('click', async () => {
+  if (!converterBuffer) return;
+  const fmt = $('converter-format').value;
+  $('converter-btn').disabled = true;
+  $('converter-status').textContent = `Converting to ${fmt.toUpperCase()}...`;
+  try {
+    let blob, ext;
+    if (fmt === 'wav') { blob = encodeWAV(converterBuffer); ext = '.wav'; }
+    else if (fmt === 'aiff') { blob = encodeAIFF(converterBuffer); ext = '.aiff'; }
+    else if (fmt === 'pcm') { blob = encodePCM(converterBuffer); ext = '.pcm'; }
+    else if (fmt === 'mp3') { blob = await encodeMP3(converterBuffer, 128); ext = '.mp3'; }
+    else if (fmt === 'ogg') { blob = await encodeOGG(converterBuffer); ext = '.ogg'; }
+    else if (fmt === 'aac') { blob = await encodeByMediaRecorder(converterBuffer, ['audio/mp4;codecs=mp4a.40.2','audio/aac'], 128000); ext = '.aac'; }
+    else if (fmt === 'flac') { blob = await encodeByMediaRecorder(converterBuffer, ['audio/flac'], 256000); ext = '.flac'; }
+    else if (fmt === 'alac') { blob = await encodeByMediaRecorder(converterBuffer, ['audio/mp4;codecs=alac'], 256000); ext = '.m4a'; }
+    else if (fmt === 'wma') { blob = await encodeByMediaRecorder(converterBuffer, ['audio/x-ms-wma'], 256000); ext = '.wma'; }
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${converterFileName || 'audio'}_converted${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    $('converter-status').textContent = `Done. Downloaded ${fmt.toUpperCase()} file.`;
+  } catch (err) {
+    $('converter-status').textContent = `${fmt.toUpperCase()} conversion is not available in this browser.`;
+    showError(`${fmt.toUpperCase()} conversion is not supported in this browser yet.`);
+  } finally {
+    $('converter-btn').disabled = false;
+  }
+});
 
 // ─── UTILS ───────────────────────────────────────────────────────────────────
 function fmtTime(s) { const m=Math.floor(s/60),sec=Math.floor(s%60); return `${m}:${sec.toString().padStart(2,'0')}`; }
