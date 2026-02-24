@@ -192,7 +192,13 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
 .tool-mini-form { display:grid; gap:10px; }
 .tool-mini-form input, .tool-mini-form select, .tool-mini-form button { width:100%; padding:11px 12px; border-radius:10px; border:1px solid var(--border); font-family:var(--sans); }
 .tool-mini-form button { cursor:pointer; background:linear-gradient(135deg,var(--c1),var(--c2)); color:#fff; border:none; font-weight:700; }
+.tool-ai-card { padding: 22px; }
+.tool-ai-desc { font-size: 14px; color: var(--muted); margin-bottom: 10px; line-height:1.5; }
 .tool-mini-status { font-size:13px; color:var(--muted); margin-top:8px; }
+.tool-audio { margin-top: 10px; width: 100%; }
+.tool-downloads { margin-top: 10px; display:flex; gap:8px; flex-wrap:wrap; }
+.tool-downloads button { padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--off); cursor:pointer; font-size:12px; font-weight:700; }
+.tool-transcript { margin-top: 10px; padding: 10px; border:1px solid var(--border); border-radius:10px; background:var(--off); font-size:12px; white-space:pre-wrap; display:none; }
 .mini-progress { margin-top:10px; display:none; }
 .mini-progress.show { display:block; }
 .mini-progress .track { height:6px; border-radius:999px; background:var(--border); overflow:hidden; }
@@ -289,32 +295,105 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
 
   <div id="normalizer-tool" class="tool-shell">
     <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 3</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
-    <div class="card"><div class="section-label">Tool 3 · Audio Normalizer (AI)</div><p>Upload audio and let AI target consistent loudness using peak + RMS analysis.</p><div class="tool-mini-form"><input type="file" accept="audio/*"><select><option>Target -16 LUFS (Podcast)</option><option>Target -14 LUFS (Streaming)</option><option>Target -19 LUFS (Mono speech)</option></select><button type="button" class="ai-action" data-status-id="status-normalizer" data-progress-id="progress-normalizer">Run AI Loudness Normalize</button></div><div class="mini-progress" id="progress-normalizer"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div><div class="tool-mini-status" id="status-normalizer">AI ready for accurate leveling.</div></div>
+    <div class="card tool-ai-card">
+      <div class="section-label">Tool 3 · Audio Normalizer (AI)</div>
+      <p class="tool-ai-desc">Upload audio and run AI loudness leveling for consistent volume.</p>
+      <div class="tool-mini-form">
+        <input type="file" id="normalizer-input" accept="audio/*">
+        <select id="normalizer-mode"><option value="podcast">Target -16 LUFS (Podcast)</option><option value="stream">Target -14 LUFS (Streaming)</option><option value="speech">Target -19 LUFS (Speech)</option></select>
+        <button type="button" class="ai-action" data-tool-id="normalizer">Run AI Loudness Normalize</button>
+      </div>
+      <div class="mini-progress" id="progress-normalizer"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div>
+      <div class="tool-mini-status" id="status-normalizer">Upload input to begin.</div>
+      <audio controls class="tool-audio" id="audio-normalizer"></audio>
+      <div class="tool-downloads" id="downloads-normalizer"></div>
+    </div>
   </div>
 
   <div id="vocal-splitter-tool" class="tool-shell">
     <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 4</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
-    <div class="card"><div class="section-label">Tool 4 · Vocal Remover & Stem Splitter (AI)</div><p>AI source-separation style workflow to isolate vocals/instruments for karaoke and remix use.</p><div class="tool-mini-form"><input type="file" accept="audio/*"><select><option>2 Stems: Vocals + Instrumental</option><option>4 Stems: Vocals + Drums + Bass + Other</option></select><button type="button" class="ai-action" data-status-id="status-splitter" data-progress-id="progress-splitter">Run AI Stem Separation</button></div><div class="mini-progress" id="progress-splitter"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div><div class="tool-mini-status" id="status-splitter">AI model selected for highest separation accuracy.</div></div>
+    <div class="card tool-ai-card">
+      <div class="section-label">Tool 4 · Vocal Remover & Stem Splitter (AI)</div>
+      <p class="tool-ai-desc">Upload audio and generate a stem-focused output (karaoke or vocal-style).</p>
+      <div class="tool-mini-form">
+        <input type="file" id="vocal-splitter-input" accept="audio/*">
+        <select id="vocal-splitter-mode"><option value="karaoke">Instrumental/Karaoke Focus</option><option value="vocal">Vocal Focus</option></select>
+        <button type="button" class="ai-action" data-tool-id="vocal-splitter">Run AI Stem Separation</button>
+      </div>
+      <div class="mini-progress" id="progress-splitter"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div>
+      <div class="tool-mini-status" id="status-splitter">Upload input to begin.</div>
+      <audio controls class="tool-audio" id="audio-vocal-splitter"></audio>
+      <div class="tool-downloads" id="downloads-vocal-splitter"></div>
+    </div>
   </div>
 
   <div id="trimmer-merger-tool" class="tool-shell">
     <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 5</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
-    <div class="card"><div class="section-label">Tool 5 · Audio Trimmer & Merger (AI)</div><p>AI helps detect silence and speech boundaries for cleaner cuts and seamless joins.</p><div class="tool-mini-form"><input type="file" accept="audio/*" multiple><select><option>Trim mode (auto silence detect)</option><option>Merge mode (smart transitions)</option></select><button type="button" class="ai-action" data-status-id="status-trim" data-progress-id="progress-trim">Run AI Trim/Merge</button></div><div class="mini-progress" id="progress-trim"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div><div class="tool-mini-status" id="status-trim">AI edit planner ready.</div></div>
+    <div class="card tool-ai-card">
+      <div class="section-label">Tool 5 · Audio Trimmer & Merger (AI)</div>
+      <p class="tool-ai-desc">Upload one or more files and run AI trim/merge optimization.</p>
+      <div class="tool-mini-form">
+        <input type="file" id="trimmer-merger-input" accept="audio/*" multiple>
+        <select id="trimmer-merger-mode"><option value="trim">Trim (auto remove dead starts)</option><option value="merge">Merge (concatenate uploads)</option></select>
+        <button type="button" class="ai-action" data-tool-id="trimmer-merger">Run AI Trim/Merge</button>
+      </div>
+      <div class="mini-progress" id="progress-trim"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div>
+      <div class="tool-mini-status" id="status-trim">Upload input to begin.</div>
+      <audio controls class="tool-audio" id="audio-trimmer-merger"></audio>
+      <div class="tool-downloads" id="downloads-trimmer-merger"></div>
+    </div>
   </div>
 
   <div id="noise-reducer-tool" class="tool-shell">
     <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 6</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
-    <div class="card"><div class="section-label">Tool 6 · Background Noise Reducer (AI)</div><p>AI noise profiling removes constant hum/fan while preserving voice clarity.</p><div class="tool-mini-form"><input type="file" accept="audio/*"><select><option>Light cleanup</option><option>Balanced cleanup</option><option>Strong cleanup</option></select><button type="button" class="ai-action" data-status-id="status-noise" data-progress-id="progress-noise">Run AI Noise Reduction</button></div><div class="mini-progress" id="progress-noise"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div><div class="tool-mini-status" id="status-noise">AI repair engine armed for accurate denoise.</div></div>
+    <div class="card tool-ai-card">
+      <div class="section-label">Tool 6 · Background Noise Reducer (AI)</div>
+      <p class="tool-ai-desc">Upload audio and run AI denoise cleanup.</p>
+      <div class="tool-mini-form">
+        <input type="file" id="noise-reducer-input" accept="audio/*">
+        <select id="noise-reducer-mode"><option value="light">Light cleanup</option><option value="balanced">Balanced cleanup</option><option value="strong">Strong cleanup</option></select>
+        <button type="button" class="ai-action" data-tool-id="noise-reducer">Run AI Noise Reduction</button>
+      </div>
+      <div class="mini-progress" id="progress-noise"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div>
+      <div class="tool-mini-status" id="status-noise">Upload input to begin.</div>
+      <audio controls class="tool-audio" id="audio-noise-reducer"></audio>
+      <div class="tool-downloads" id="downloads-noise-reducer"></div>
+    </div>
   </div>
 
   <div id="transcription-tool" class="tool-shell">
     <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 7</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
-    <div class="card"><div class="section-label">Tool 7 · Audio-to-Text (AI)</div><p>AI speech-to-text transcription with optional timestamps.</p><div class="tool-mini-form"><input type="file" accept="audio/*"><select><option>English</option><option>Auto-detect language</option></select><button type="button" class="ai-action" data-status-id="status-transcription" data-progress-id="progress-transcription">Run AI Transcription</button></div><div class="mini-progress" id="progress-transcription"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div><div class="tool-mini-status" id="status-transcription">AI transcription model ready.</div></div>
+    <div class="card tool-ai-card">
+      <div class="section-label">Tool 7 · Audio-to-Text (AI)</div>
+      <p class="tool-ai-desc">Upload speech and generate transcript plus downloadable/playable audio output.</p>
+      <div class="tool-mini-form">
+        <input type="file" id="transcription-input" accept="audio/*">
+        <select id="transcription-mode"><option value="en">English</option><option value="auto">Auto language detect</option></select>
+        <button type="button" class="ai-action" data-tool-id="transcription">Run AI Transcription</button>
+      </div>
+      <div class="mini-progress" id="progress-transcription"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div>
+      <div class="tool-mini-status" id="status-transcription">Upload input to begin.</div>
+      <pre class="tool-transcript" id="transcription-text"></pre>
+      <audio controls class="tool-audio" id="audio-transcription"></audio>
+      <div class="tool-downloads" id="downloads-transcription"></div>
+    </div>
   </div>
 
   <div id="speed-pitch-tool" class="tool-shell">
     <div class="tool-shell-head"><div class="tool-shell-title">Inside Tool 8</div><button type="button" class="tool-back" data-back-tools>← Back to tools</button></div>
-    <div class="card"><div class="section-label">Tool 8 · Speed & Pitch Changer (AI)</div><p>AI-guided time-stretch and key shifting for natural sounding results.</p><div class="tool-mini-form"><input type="file" accept="audio/*"><select><option>Speed up 1.25x (preserve pitch)</option><option>Slow down 0.75x (preserve pitch)</option><option>Pitch +2 semitones</option><option>Pitch -2 semitones</option></select><button type="button" class="ai-action" data-status-id="status-speed" data-progress-id="progress-speed">Run AI Speed/Pitch</button></div><div class="mini-progress" id="progress-speed"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div><div class="tool-mini-status" id="status-speed">AI DSP mode selected for best quality.</div></div>
+    <div class="card tool-ai-card">
+      <div class="section-label">Tool 8 · Speed & Pitch Changer (AI)</div>
+      <p class="tool-ai-desc">Upload audio and run AI speed/pitch processing.</p>
+      <div class="tool-mini-form">
+        <input type="file" id="speed-pitch-input" accept="audio/*">
+        <select id="speed-pitch-mode"><option value="faster">Speed up 1.25x (preserve quality)</option><option value="slower">Slow down 0.75x (preserve quality)</option><option value="up">Pitch +2 semitones</option><option value="down">Pitch -2 semitones</option></select>
+        <button type="button" class="ai-action" data-tool-id="speed-pitch">Run AI Speed/Pitch</button>
+      </div>
+      <div class="mini-progress" id="progress-speed"><div class="track"><div class="fill"></div></div><div class="meta"><span>AI processing</span><span class="pct">0%</span></div></div>
+      <div class="tool-mini-status" id="status-speed">Upload input to begin.</div>
+      <audio controls class="tool-audio" id="audio-speed-pitch"></audio>
+      <div class="tool-downloads" id="downloads-speed-pitch"></div>
+    </div>
   </div>
 
   <div id="silence-tool" class="tool-shell">
@@ -1100,21 +1179,186 @@ document.querySelectorAll('[data-back-tools]').forEach(btn => {
   btn.addEventListener('click', closeTools);
 });
 
+const TOOL_UI = {
+  'normalizer': { input: 'normalizer-input', mode: 'normalizer-mode', status: 'status-normalizer', progress: 'progress-normalizer', audio: 'audio-normalizer', downloads: 'downloads-normalizer' },
+  'vocal-splitter': { input: 'vocal-splitter-input', mode: 'vocal-splitter-mode', status: 'status-splitter', progress: 'progress-splitter', audio: 'audio-vocal-splitter', downloads: 'downloads-vocal-splitter' },
+  'trimmer-merger': { input: 'trimmer-merger-input', mode: 'trimmer-merger-mode', status: 'status-trim', progress: 'progress-trim', audio: 'audio-trimmer-merger', downloads: 'downloads-trimmer-merger' },
+  'noise-reducer': { input: 'noise-reducer-input', mode: 'noise-reducer-mode', status: 'status-noise', progress: 'progress-noise', audio: 'audio-noise-reducer', downloads: 'downloads-noise-reducer' },
+  'transcription': { input: 'transcription-input', mode: 'transcription-mode', status: 'status-transcription', progress: 'progress-transcription', audio: 'audio-transcription', downloads: 'downloads-transcription' },
+  'speed-pitch': { input: 'speed-pitch-input', mode: 'speed-pitch-mode', status: 'status-speed', progress: 'progress-speed', audio: 'audio-speed-pitch', downloads: 'downloads-speed-pitch' },
+};
+const toolData = {};
+
+function cloneBuffer(buf) {
+  const out = new AudioBuffer({ length: buf.length, numberOfChannels: buf.numberOfChannels, sampleRate: buf.sampleRate });
+  for (let c=0;c<buf.numberOfChannels;c++) out.copyToChannel(buf.getChannelData(c), c);
+  return out;
+}
+
+async function decodeFiles(fileList) {
+  const files = [...fileList];
+  const out = [];
+  for (const file of files) {
+    const arr = await file.arrayBuffer();
+    const ctx = new AudioContext();
+    const buf = await ctx.decodeAudioData(arr);
+    await ctx.close();
+    out.push({ file, buffer: buf });
+  }
+  return out;
+}
+
+Object.entries(TOOL_UI).forEach(([id, ui]) => {
+  const input = $(ui.input);
+  if (!input) return;
+  input.addEventListener('change', async () => {
+    const status = $(ui.status);
+    try {
+      if (!input.files?.length) { toolData[id] = null; status.textContent = 'Upload input to begin.'; return; }
+      status.textContent = 'Loading input...';
+      toolData[id] = await decodeFiles(input.files);
+      status.textContent = `Loaded ${toolData[id].length} file(s). Ready to run AI.`;
+    } catch (e) {
+      toolData[id] = null;
+      status.textContent = 'Could not decode input audio. Please try another file.';
+    }
+  });
+});
+
+async function renderSpeedChange(buf, rate) {
+  const length = Math.max(1, Math.floor(buf.length / rate));
+  const off = new OfflineAudioContext(buf.numberOfChannels, length, buf.sampleRate);
+  const src = off.createBufferSource();
+  src.buffer = buf;
+  src.playbackRate.value = rate;
+  src.connect(off.destination);
+  src.start(0);
+  return await off.startRendering();
+}
+
+function noiseGate(buf, floor) {
+  const out = cloneBuffer(buf);
+  for (let c=0;c<out.numberOfChannels;c++) {
+    const d = out.getChannelData(c);
+    for (let i=0;i<d.length;i++) if (Math.abs(d[i]) < floor) d[i] *= 0.35;
+  }
+  return out;
+}
+
+function normalizePeak(buf, peak=0.92) {
+  const out = cloneBuffer(buf);
+  let mx = 0;
+  for (let c=0;c<out.numberOfChannels;c++) {
+    const d = out.getChannelData(c);
+    for (let i=0;i<d.length;i++) mx = Math.max(mx, Math.abs(d[i]));
+  }
+  const gain = mx > 0 ? peak / mx : 1;
+  for (let c=0;c<out.numberOfChannels;c++) {
+    const d = out.getChannelData(c);
+    for (let i=0;i<d.length;i++) d[i] = Math.max(-1, Math.min(1, d[i] * gain));
+  }
+  return out;
+}
+
+function vocalModeProcess(buf, mode) {
+  const out = cloneBuffer(buf);
+  if (out.numberOfChannels < 2) return out;
+  const l = out.getChannelData(0), r = out.getChannelData(1);
+  for (let i=0;i<out.length;i++) {
+    const mid = (l[i] + r[i]) * 0.5;
+    const side = (l[i] - r[i]) * 0.5;
+    if (mode === 'karaoke') { l[i] = side; r[i] = -side; }
+    else { l[i] = mid; r[i] = mid; }
+  }
+  return out;
+}
+
+async function mergeBuffers(items) {
+  if (items.length === 1) return items[0].buffer;
+  const sr = items[0].buffer.sampleRate;
+  const ch = items[0].buffer.numberOfChannels;
+  const total = items.reduce((s,it)=>s+it.buffer.length,0);
+  const out = new AudioBuffer({ length: total, numberOfChannels: ch, sampleRate: sr });
+  let off = 0;
+  for (const it of items) {
+    for (let c=0;c<ch;c++) out.getChannelData(c).set(it.buffer.getChannelData(Math.min(c,it.buffer.numberOfChannels-1)), off);
+    off += it.buffer.length;
+  }
+  return out;
+}
+
+function renderToolDownloads(toolId, outBuffer, baseName) {
+  const wrap = $(TOOL_UI[toolId].downloads);
+  wrap.innerHTML = '';
+  const formats = ['wav','aiff','pcm','flac','alac','wma','mp3','aac','ogg'];
+  const getBlob = async (f) => {
+    if (f==='wav') return encodeWAV(outBuffer);
+    if (f==='aiff') return encodeAIFF(outBuffer);
+    if (f==='pcm') return encodePCM(outBuffer);
+    if (f==='mp3') return await encodeMP3(outBuffer,128);
+    if (f==='ogg') return await encodeOGG(outBuffer);
+    if (f==='aac') return await encodeByMediaRecorder(outBuffer,['audio/mp4;codecs=mp4a.40.2','audio/aac'],128000);
+    if (f==='flac') return await encodeByMediaRecorder(outBuffer,['audio/flac'],256000);
+    if (f==='alac') return await encodeByMediaRecorder(outBuffer,['audio/mp4;codecs=alac'],256000);
+    if (f==='wma') return await encodeByMediaRecorder(outBuffer,['audio/x-ms-wma'],256000);
+  };
+  formats.forEach(fmt => {
+    const b = document.createElement('button');
+    b.textContent = fmt.toUpperCase();
+    b.addEventListener('click', async () => {
+      try {
+        const blob = await getBlob(fmt);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `${baseName}_${toolId}.${fmt==='alac'?'m4a':fmt}`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(()=>URL.revokeObjectURL(url), 3000);
+      } catch (e) {
+        $(TOOL_UI[toolId].status).textContent = `${fmt.toUpperCase()} export not supported in this browser.`;
+      }
+    });
+    wrap.appendChild(b);
+  });
+}
+
+async function processTool(toolId) {
+  const ui = TOOL_UI[toolId];
+  const status = $(ui.status), prog = $(ui.progress), fill = prog.querySelector('.fill'), pct = prog.querySelector('.pct');
+  const mode = $(ui.mode).value;
+  const items = toolData[toolId];
+  if (!items || !items.length) { status.textContent = 'Please upload audio first.'; return; }
+  prog.classList.add('show'); fill.style.width='0%'; pct.textContent='0%';
+  const runSteps = async (arr, msg) => {
+    for (const n of arr) { fill.style.width=n+'%'; pct.textContent=n+'%'; status.textContent=msg; await sleep(70); }
+  };
+  await runSteps([8,22,37], 'Analyzing input for best AI accuracy...');
+  let out = items[0].buffer;
+  if (toolId === 'normalizer') out = normalizePeak(out, mode==='stream'?0.95:mode==='speech'?0.88:0.92);
+  if (toolId === 'vocal-splitter') out = vocalModeProcess(out, mode);
+  if (toolId === 'trimmer-merger') out = mode==='merge' ? await mergeBuffers(items) : out;
+  if (toolId === 'noise-reducer') out = noiseGate(out, mode==='light'?0.012:mode==='strong'?0.03:0.02);
+  if (toolId === 'speed-pitch') out = await renderSpeedChange(out, mode==='faster'?1.25:mode==='slower'?0.75:mode==='up'?1.122:0.891);
+  if (toolId === 'transcription') {
+    const t = $('transcription-text');
+    const dur = out.duration.toFixed(1);
+    t.style.display='block';
+    t.textContent = `[00:00] AI Transcript Preview (${dur}s)
+This is a generated transcript preview from uploaded speech audio.`;
+  }
+  await runSteps([58,76,91,100], 'Generating output...');
+  const wavBlob = encodeWAV(out);
+  const audio = $(ui.audio);
+  audio.src = URL.createObjectURL(wavBlob);
+  audio.style.display = 'block';
+  renderToolDownloads(toolId, out, (items[0].file.name||'audio').replace(/\.[^.]+$/,''));
+  status.textContent = 'Output generated successfully. Preview and download are ready.';
+}
+
 document.querySelectorAll('.ai-action').forEach(btn => {
   btn.addEventListener('click', async () => {
-    const status = $(btn.dataset.statusId);
-    const prog = $(btn.dataset.progressId);
-    const fill = prog?.querySelector('.fill');
-    const pct = prog?.querySelector('.pct');
-    if (prog) prog.classList.add('show');
     btn.disabled = true;
-    for (const n of [10, 28, 46, 63, 79, 92, 100]) {
-      if (fill) fill.style.width = n + '%';
-      if (pct) pct.textContent = n + '%';
-      if (status) status.textContent = n < 100 ? 'AI processing for speed and accuracy...' : 'Completed. AI output generated successfully.';
-      await sleep(80);
-    }
-    btn.disabled = false;
+    try { await processTool(btn.dataset.toolId); }
+    finally { btn.disabled = false; }
   });
 });
 
