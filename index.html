@@ -379,8 +379,7 @@ body { background: var(--off); color: var(--text); font-family: var(--sans); min
       <div class="tool-mini-form">
         <input type="file" id="transcription-input" accept="audio/*">
         <select id="transcription-mode"><option value="en">English</option><option value="auto">Auto language detect</option></select>
-        <input type="password" id="transcription-api-key" placeholder="OpenAI API key (required for real transcript)">
-        <button type="button" class="ai-action" data-tool-id="transcription">Run AI Transcription</button>
+                <button type="button" class="ai-action" data-tool-id="transcription">Run AI Transcription</button>
       </div>
       <div class="tool-settings">
         <h4>Settings</h4>
@@ -1306,24 +1305,35 @@ function makeDownload(name, content, mime) {
   setTimeout(() => URL.revokeObjectURL(url), 3000);
 }
 
-async function transcribeWithOpenAI(file, languageMode) {
-  const apiKey = $('transcription-api-key')?.value?.trim();
-  if (!apiKey) throw new Error('Please add your OpenAI API key to generate a real transcript preview.');
-  const form = new FormData();
-  form.append('file', file, file.name || 'audio.wav');
-  form.append('model', 'gpt-4o-mini-transcribe');
-  if (languageMode !== 'auto') form.append('language', languageMode);
-  const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${apiKey}` },
-    body: form
-  });
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`Transcription failed (${res.status}). ${txt.slice(0, 140)}`);
+let localTranscriberPromise = null;
+
+async function getLocalTranscriber(languageMode) {
+  if (!localTranscriberPromise) {
+    localTranscriberPromise = (async () => {
+      const { pipeline, env } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+      env.allowLocalModels = false;
+      env.useBrowserCache = true;
+      const model = languageMode === 'auto' ? 'Xenova/whisper-tiny' : 'Xenova/whisper-tiny.en';
+      return pipeline('automatic-speech-recognition', model, { quantized: true });
+    })();
   }
-  const data = await res.json();
-  return (data.text || '').trim();
+  return localTranscriberPromise;
+}
+
+async function transcribeLocally(file, languageMode) {
+  if (!file) throw new Error('Please upload audio first.');
+  const transcriber = await getLocalTranscriber(languageMode);
+  const blobUrl = URL.createObjectURL(file);
+  try {
+    const out = await transcriber(blobUrl, {
+      chunk_length_s: 30,
+      stride_length_s: 5,
+      return_timestamps: true
+    });
+    return (out?.text || '').trim();
+  } finally {
+    URL.revokeObjectURL(blobUrl);
+  }
 }
 
 function buildExportContent(fmt, txt, withSectionTs) {
@@ -1509,9 +1519,9 @@ async function processTool(toolId) {
   if (toolId === 'speed-pitch') out = await renderSpeedChange(out, mode==='faster'?1.25:mode==='slower'?0.75:mode==='up'?1.122:0.891);
   if (toolId === 'transcription') {
     const t = $('transcription-text');
-    status.textContent = 'Transcribing audio...';
+    status.textContent = 'Running local AI transcription...';
     try {
-      const transcript = await transcribeWithOpenAI(items[0].file, mode);
+      const transcript = await transcribeLocally(items[0].file, mode);
       if (!transcript) throw new Error('No transcript text was returned for this audio.');
       transcriptionState = { rawWords: transcript.split(/\s+/), duration: out.duration || 0 };
       t.style.display = 'block';
